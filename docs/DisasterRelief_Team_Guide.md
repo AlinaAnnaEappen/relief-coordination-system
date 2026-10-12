@@ -344,13 +344,14 @@ CREATE TABLE items (
   item_id            SERIAL PRIMARY KEY,
   item_code          TEXT NOT NULL UNIQUE,
   name               TEXT NOT NULL,
-  category           TEXT NOT NULL CHECK (category IN ('FW','CB','SH','MF','KU','SU','SG')),
+  group_code         TEXT NOT NULL CHECK (group_code IN ('FW','CB','SH','MF','KU','SU','SG','CA','SS','WI','PR','LV','RC','TL')),
+  group_kind         TEXT NOT NULL CHECK (group_kind IN ('core','extended')),
   unit               TEXT NOT NULL,
-  perishable         BOOLEAN NOT NULL DEFAULT FALSE,
-  requires_approval  BOOLEAN NOT NULL DEFAULT FALSE,
-  emergency_eligible BOOLEAN,          -- NULL = to be confirmed with DDMA
-  acceptance_rule    TEXT,             -- e.g. 'No bread'
-  norm_note          TEXT,             -- only when we have a cited source
+  item_type          TEXT NOT NULL CHECK (item_type IN ('Consumable','Durable','Infrastructure','Service')),
+  perishable         TEXT NOT NULL DEFAULT 'No' CHECK (perishable IN ('No','Yes','Semi')),
+  requires_approval  TEXT NOT NULL DEFAULT 'No' CHECK (requires_approval IN ('No','Yes')),
+  emergency_eligible BOOLEAN NOT NULL DEFAULT FALSE,
+  notes              TEXT,
   active             BOOLEAN NOT NULL DEFAULT TRUE
 );
 
@@ -479,7 +480,7 @@ CREATE INDEX idx_scores_run      ON priority_scores(run_id, rank);
 
 | Data | File | Owner | Real or fake? |
 |---|---|---|---|
-| Item catalog | `seed/seed_items.csv` | B | Real list from the team's accepted-items sheet (Section 7.2) |
+| Item catalog | `seed/seed_items.csv` | B | Official catalog from `docs/Relief Camp Item Catalog – Group Mapping (Draft).docx` (196 items in 14 groups) |
 | Camps | `seed/seed_camps.csv` | C | **Fake test data** |
 | Hubs | `seed/seed_hubs.csv` | C | **Fake test data** |
 | Starting stock | `seed/seed_stock.csv` | C | **Fake test data** |
@@ -488,64 +489,55 @@ CREATE INDEX idx_scores_run      ON priority_scores(run_id, rank);
 
 ⚠️ **Careful:** Never put real people's names, phone numbers or addresses in the seed data. Camp and hub names are made up.
 
-### 7.2 Item catalog (from the accepted-items list)
+### 7.2 Item catalog (from the official catalog document)
 
-This comes from the team's accepted-items sheet (screenshots). The grouping into categories is **our** proposal. Items marked ⓘ need a decision.
+The official item catalog is defined in `docs/Relief Camp Item Catalog – Group Mapping (Draft).docx` and converted into `seed/seed_items.csv`. It contains **196 items** across **14 distinct groups** (6 core groups and 8 extended groups).
 
-**Rules written on the sheet (put them in `acceptance_rule`):**
-- Rusk: **no bread**
-- Biscuits: **no cream biscuits**
-- Water: **only 20-litre cans**
+**Seed items (`seed_items.csv` columns:** `item_code,name,group_code,group_kind,unit,item_type,perishable,requires_approval,emergency_eligible,notes`**)**
 
-**Seed items (`seed_items.csv` columns:** `item_code,name,category,unit,perishable,requires_approval,emergency_eligible,acceptance_rule,norm_note`**)**
+#### 1. Group Structure (14 Groups)
 
-| Code | Name | Cat | Unit | Rule / note |
-|---|---|---|---|---|
-| FW01 | Rice | FW | kg | |
-| FW02 | Sugar | FW | kg | |
-| FW03 | Salt | FW | kg | |
-| FW04 | Vegetables | FW | kg | perishable |
-| FW05 | Food grains (other than rice) ⓘ | FW | kg | "Food grains" is vague on the sheet; ask DDMA to name them |
-| FW06 | Cooking oil | FW | litre | |
-| FW07 | Rusk | FW | packet | **No bread** |
-| FW08 | Biscuits | FW | packet | **No cream biscuits** |
-| FW09 | Drinking water | FW | can (20 L) | **Only 20-litre cans** |
-| FW10 | Tea / coffee powder | FW | packet | |
-| FW11 | Pulses | FW | kg | |
-| CB01 | Bed sheets | CB | piece | listed twice on the sheet; one item |
-| CB02 | Bathing towel (thorthu) | CB | piece | |
-| CB03 | Sleeping mats | CB | piece | |
-| CB04 | Blankets | CB | piece | |
-| CB05 | Pillow | CB | piece | |
-| CB06 | Adult clothes (maxi, mundu, pants, shirt, inner garments) | CB | set | ⓘ maybe split into separate items later |
-| CB07 | Children's clothes | CB | set | |
-| CB08 | Kids' clothes ⓘ | CB | set | appears separately on the sheet; may be the same as CB07 or for infants. Ask DDMA. |
-| SG01 | School bag | SG | piece | School kit |
-| SG02 | Notebooks | SG | piece | School kit |
-| SG03 | Pencil box | SG | piece | School kit |
-| SG04 | Pens | SG | piece | School kit |
-| SH01 | Bleaching powder | SH | kg | Cleaning |
-| SH02 | Mop | SH | piece | Cleaning |
-| SH03 | Phenol / Dettol | SH | bottle | Cleaning |
-| SH04 | Brush | SH | piece | Cleaning |
-| SH05 | Cleaning liquids | SH | bottle | Cleaning |
-| SH06 | Baby diapers | SH | packet | |
-| SH07 | Adult diapers | SH | packet | |
-| SH08 | Sanitary napkins | SH | packet | |
-| SH09 | Toothpaste | SH | tube | |
-| SH10 | Tooth brushes | SH | piece | |
-| SH11 | Body soap | SH | piece | |
-| SH12 | Washing soap | SH | piece | |
-| MF01 | ORS packets / electrolytes | MF | packet | |
-| MF02 | Mosquito repellents / Odomos | MF | piece | |
-| MF03 | Antiseptic lotion | MF | bottle | |
-| MF04 | Anti-fungal powder | MF | piece | |
-| SU01 | Candles | SU | packet | |
-| KU01 | Match box | KU | packet | |
+* **6 Core Groups (`group_kind = 'core'` — 116 items):** The baseline essential groups covering camp relief operations:
+  1. `FW` — **Food & Water** (24 items): Rice, pulses, drinking water, infant formula, baby cereal, etc.
+  2. `CB` — **Clothing & Bedding** (20 items): Bed sheets, towels, blankets, mats, clothing sets.
+  3. `SH` — **Sanitation & Hygiene** (26 items): Soaps, sanitary napkins, bleaching powder, disinfectants, mobile toilets.
+  4. `MF` — **Medical / First Aid** (24 items): First aid, ORS, medicines, antibiotics, oxygen cylinders, vaccines, antivenom.
+  5. `KU` — **Kitchen & Utensils** (16 items): Cooking pots, plates, gas cylinders, stoves.
+  6. `SU` — **Shelter & Utility** (20 items): Tarpaulins, tents, flashlights, ropes, generators.
 
-**Medicines:** the sheet has a "Medicines" heading but **no items under it** in the screenshot. Leave medicines out of the seed until the team gets the full list. When added, set `requires_approval = TRUE`.
+* **8 Extended Groups (`group_kind = 'extended'` — 80 items):** Specialized support groups:
+  7. `SG` — **Special Groups** (19 items): Feeding bottles, wheelchairs, crutches, special beds, pregnant women nutrition & referral transport.
+  8. `CA` — **Communication & Administration** (12 items): Walkie-talkies, registers, QR cards, signage.
+  9. `SS` — **Safety & Security** (10 items): Fire extinguishers, lifejackets, rescue boats, ropes, helmets.
+  10. `WI` — **Waste & WASH Infrastructure** (6 items): Water tankers, filters, waste vehicles, chlorine.
+  11. `PR` — **Psychosocial & Recreation** (6 items): Counselling support, play materials, games.
+  12. `LV` — **Livestock & Pets** (3 items): Fodder, veterinary supplies, animal shelter.
+  13. `RC` — **Recovery & Cleaning** (5 items): Gum boots, cleaning gloves, water pumps, re-entry kits.
+  14. `TL` — **Transport & Logistics** (5 items): Transport vehicles, fuel, drivers, boats.
 
-**Defaults for the seed file:** `perishable` = TRUE only for vegetables; `requires_approval` = FALSE for all current items; `emergency_eligible` = leave **empty** (means "to be confirmed with DDMA").
+#### 2. Emergency Eligibility & Triage Rule (35 Emergency Items)
+
+Emergency eligibility is reserved for **acute life-saving triage** (items critical to prevent death or severe medical deterioration within hours/days, or for infants detached from mothers):
+* **`emergency_eligible = yes` (35 items):**
+  * All 24 Medical/First Aid items (`MF01`–`MF24`): Essential medicines (fever, pain, antibiotics, anti-allergy, chronic illness BP/sugar), oxygen cylinders, snake antivenom, vaccines, first aid, ORS, test strips.
+  * 4 Infant Feeding items: `FW19` Infant formula, `FW20` Baby cereal, `FW21` Milk powder, `SG01` Feeding bottles.
+  * 3 Bed-Ridden & Critical Patient / Maternal items: `SG15` Special beds, `SG17` Nutrition supplements for pregnant women, `SG19` Referral transport for pregnant women / acute medical emergencies.
+  * 4 Water Rescue & Safety items: `SS02` Lifejackets, `SS03` Life buoys, `SS04` Rescue boats, `SS05` Rescue ropes.
+* **`emergency_eligible = no` (161 items):**
+  * Standard sustenance food (rice, wheat, oil), clothing, utensils, shelter construction materials, stationery, and infrastructure.
+
+#### 3. Field Specifications & Mapping Rules
+
+* `item_code`: Unique identifier from the catalog (e.g. `FW01` to `TL05`). No duplicates exist.
+* `name`: Item name copied exactly from the official catalog.
+* `group_code`: Two-letter group abbreviation (`FW`, `CB`, etc.).
+* `group_kind`: `'core'` for the 6 primary groups; `'extended'` for the remaining 8 groups.
+* `unit`: Official unit of measurement (`kg`, `litre`, `piece`, `packet`, `tin`, `dose`, etc.).
+* `item_type`: `'Consumable'`, `'Durable'`, `'Infrastructure'`, or `'Service'`.
+* `perishable`: `'No'`, `'Yes'`, or `'Semi'`. Expiry/cold-chain qualifiers are stored in `notes`.
+* `requires_approval`: `'No'` or `'Yes'`. Prescribed medicines, specialized equipment, and heavy services require approval.
+* `emergency_eligible`: `'yes'` (35 items) or `'no'` (161 items). Stored as `BOOLEAN` (`TRUE`/`FALSE`) in PostgreSQL.
+* `notes`: Captures handling requirements like `(expiry)`, `(cold chain)`, and preserves `TBC - confirm with DDMA` for items flagged for final government policy sign-off.
 
 ### 7.3 Water and toilet norms (for the report and later features)
 
@@ -769,7 +761,7 @@ Hub coordinators press **Mark dispatched** on a planned allocation. This sets th
 | GET `/auth/me` | any | Who am I (username, role, camp_id, hub_id) | A |
 | POST `/auth/register-donor` | public | A donor creates an account (role forced to `donor`) | A |
 | POST `/admin/users` | admin | Create camp officer / hub coordinator / admin user | A |
-| GET `/items` | any | List active items (filter `?category=FW`) | B |
+| GET `/items` | any | List active items (filter `?group_code=FW` or `?category=FW`, `?group_kind=core`, `?emergency_only=true`) | B |
 | POST `/items`, PUT `/items/{id}` | admin | Add or edit an item | B |
 | POST `/camps` | admin | Create a camp | B |
 | GET `/camps`, GET `/camps/{id}` | admin; officer sees only own camp | View camps | B |
@@ -859,7 +851,7 @@ How to read a task: **Task ID** (for the tracker), **Day** (target), **Files** y
 #### A3 — Donor module (Day 2–3)
 **Files:** `routers/donors_router.py`, `templates/donor_form.html`, `donor_history.html`, `admin_donations.html`
 **Steps**
-1. Donor form: pick items from the catalog (dropdown, shows `acceptance_rule` next to the item, e.g. "No cream biscuits"), enter quantity; can add several lines.
+1. Donor form: pick items from the catalog (dropdown, grouped by `group_code` with core essentials shown upfront; displays `notes` next to the item), enter quantity; can add several lines.
 2. `POST /donations`: check that items are active, quantities > 0, no duplicate items. Create the donation. If an **active hub exists in the donor's district**, set it as `assigned_hub_id` and status `hub_assigned`; otherwise status `offered`.
 3. `GET /donations` with the permissions of Section 10.
 4. Admin page lists donations and has an **Assign hub** dropdown (`POST /donations/{id}/assign-hub`).
@@ -882,11 +874,11 @@ How to read a task: **Task ID** (for the tracker), **Day** (target), **Files** y
 #### B1 — Item catalog (Day 1–2)
 **Files:** `seed/seed_items.csv`, `routers/items_router.py`, `templates/items.html`
 **Steps**
-1. Turn the table in Section 7.2 into `seed_items.csv` (**push on Day 1** so C can load it).
-2. `GET /items` (optional `?category=`), `POST /items` and `PUT /items/{id}` (admin only).
-3. `items.html`: items grouped by category, with the acceptance rule visible.
+1. Generate `seed/seed_items.csv` from the official catalog in `docs/Relief Camp Item Catalog – Group Mapping (Draft).docx` (196 items, 14 groups: 6 core, 8 extended; 35 acute emergency items marked `emergency_eligible = yes`).
+2. `GET /items` (supports `?group_code=` and alias `?category=`, `?group_kind=core|extended`, `?emergency_only=true`), `POST /items` and `PUT /items/{id}` (admin only).
+3. `items.html`: items grouped by the 14 groups, clearly distinguishing `core` (FW, CB, SH, MF, KU, SU) from `extended` groups, displaying units, perishable status, emergency badge, and handling `notes`.
 
-**Done when:** the page shows about 43 items in 7 category groups; "Drinking water" shows "can (20 L)" and the "only 20-litre cans" rule; non-admin users cannot add items.
+**Done when:** the page shows all 196 items in 14 group tabs/sections; filtering works; non-admin users cannot add or edit items.
 
 #### B2 — Camps (Day 2–3)
 **Files:** `routers/camps_router.py`, `templates/camp_list.html`, `camp_form.html`, `camp_update.html`
@@ -901,7 +893,7 @@ How to read a task: **Task ID** (for the tracker), **Day** (target), **Files** y
 #### B3 — Requests (Day 3–4)
 **Files:** `routers/requests_router.py`, `templates/request_form.html`, `request_list.html`, `request_detail.html`
 **Steps**
-1. Request form: pick items (grouped by category), quantity, an **Escalate** checkbox ("Mark as urgent"), and a **plain comment box** (max 500 characters; **not scored, not analysed**).
+1. Request form: pick items (grouped by `group_code` with core goods upfront; emergency-eligible items highlighted), quantity, an **Escalate** checkbox ("Mark as urgent"), and a **plain comment box** (max 500 characters; **not scored, not analysed**).
 2. `POST /requests`: at least one item; quantity > 0; no duplicate items; camp must be the officer's own camp and `active`. Save `requests` and `request_items`.
 3. List page with status; detail page shows **requested vs allocated** for each line.
 4. `POST /requests/{id}/escalate` and `POST /requests/{id}/cancel` (only for open requests, only by the owning officer).
@@ -924,7 +916,7 @@ How to read a task: **Task ID** (for the tracker), **Day** (target), **Files** y
 1. Day 1: write `load_seed.py` with the option `--only items` so B can load the catalog immediately.
 2. Create the CSVs using Sections 7.4–7.7 (fake data only).
 3. Loader order: items → camps → hubs → users (call A's `seed_users.py`) → stock → requests + request_items. Each run starts clean (`reset_db.py`), so it can be repeated safely.
-4. At the end, print counts: "items: 43, camps: 6, hubs: 3, ..." (check against the CSV rows).
+4. At the end, print counts: "items: 196, camps: 6, hubs: 3, ..." (check against the CSV rows).
 
 **Done when:** `python seed/load_seed.py` gives the same counts on every laptop. **Push by midday Day 2.**
 
@@ -1087,8 +1079,8 @@ schema.sql. Write tests/test_auth.py.
 
 **A3**
 ```
-Task A3. Build the donor module: donor form (items from catalog with the
-acceptance_rule shown), POST /donations (validate items active, qty>0, no
+Task A3. Build the donor module: donor form (items from catalog with notes
+shown, grouped by group_code), POST /donations (validate items active, qty>0, no
 duplicates; auto-assign an active hub in the donor's district -> status
 hub_assigned, else offered), GET /donations (permissions in Section 10),
 POST /donations/{id}/assign-hub (admin). Pages: donor_form.html,
@@ -1097,12 +1089,12 @@ donor_history.html, admin_donations.html. Donors must never see camps.
 
 **B1**
 ```
-Task B1. Create seed/seed_items.csv from the table in Guide Section 7.2 (columns:
-item_code,name,category,unit,perishable,requires_approval,emergency_eligible,
-acceptance_rule,norm_note; leave emergency_eligible empty; leave Medicines out).
-Then build routers/items_router.py (GET /items with optional ?category=,
-POST and PUT for admin only) and templates/items.html grouped by category,
-showing the acceptance rule.
+Task B1. Load seed/seed_items.csv (196 items, 14 groups, columns: item_code,
+name,group_code,group_kind,unit,item_type,perishable,requires_approval,
+emergency_eligible,notes). Build routers/items_router.py (GET /items with
+optional ?group_code= and ?category= alias, ?group_kind=, ?emergency_only=;
+POST and PUT for admin only) and templates/items.html grouped by group_code
+(distinguishing core vs extended groups) showing units, perishable, emergency badge, and notes.
 ```
 
 **B2**
@@ -1471,8 +1463,8 @@ Bring this list to the DDMA meeting. Until answered, the guide uses the stated p
 1. **Final SAW weights** (placeholders in Section 8.2).
 2. **Time factor cap** (placeholder 72 hours).
 3. **Damage weighting** — Part A vs Part B split (this guide uses one `damage_level` for now).
-4. **Emergency-eligible items** (the field is empty for now).
-5. **Medicines list** — the sheet has a heading with no items.
+4. **Emergency-eligible items:** Baseline established with 35 acute life-saving / medical / infant care items (Section 7.2). DDMA to review and confirm items marked with `"TBC - confirm with DDMA"`.
+5. **Medicines list:** Populated with 24 Medical & First Aid items (`MF01`–`MF24`) from the official catalog, covering essential medicines, oxygen, antivenom, diagnostic tools, and vaccines.
 6. Meaning of **"Food grains"** and **"Clothes for kid's"** (vs "children's").
 7. **Who issued the accepted-items list** (needed for citation) and whether it has per-camp or per-person quantities.
 8. **Source and edition** of the water and toilet tables (needed for citation).
@@ -1498,7 +1490,7 @@ Keep answers short and honest.
 | What about people entering false numbers? | In Part 3, **anomaly-aware triage** flags unusual entries and asks the officer for an explanation. It does not accuse anyone. |
 | Why PostgreSQL + PostGIS? | **ACID transactions** keep stock correct (no double counting). PostGIS calculates distances. |
 | Is the distance real road distance? | No. Week 1 uses straight-line distance. Road or boat routing is a later improvement. |
-| Is the data real? | No. Test data is fake. Item list comes from the team's accepted-items sheet; weights are placeholders until DDMA confirms. |
+| Is the data real? | No. Test data is fake. Item list comes from the team's official catalog document; weights are placeholders until DDMA confirms. |
 
 ---
 
@@ -1552,5 +1544,4 @@ Keep answers short and honest.
 | Date | Who | Change | Approved by |
 |---|---|---|---|
 | (Day 0) | — | Guide v1.0 created | — |
-|  |  |  |  |
-|  |  |  |  |
+| (Day 1) | Team | Upgraded item catalog to official 14-group catalog (196 items, 35 emergency items); updated schema.sql items table with group_code, group_kind, item_type, notes; updated Member A, B, C, D tasks | Team |
