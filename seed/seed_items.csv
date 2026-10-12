@@ -1,197 +1,41 @@
-item_code,name,group_code,group_kind,unit,item_type,perishable,requires_approval,emergency_eligible,notes
-FW01,Drinking water (bottled or tanker),FW,core,litre,Consumable,No,No,no,
-FW02,Rice,FW,core,kg,Consumable,No,No,no,
-FW03,Pulses (dal),FW,core,kg,Consumable,No,No,no,
-FW04,Wheat flour / atta,FW,core,kg,Consumable,No,No,no,
-FW05,Cooking oil,FW,core,litre,Consumable,No,No,no,
-FW06,Sugar,FW,core,kg,Consumable,No,No,no,
-FW07,Salt,FW,core,kg,Consumable,No,No,no,
-FW08,Tea / coffee powder,FW,core,packet,Consumable,No,No,no,
-FW09,Spices,FW,core,packet,Consumable,No,No,no,
-FW10,Coconut,FW,core,piece,Consumable,Yes,No,no,
-FW11,Eggs,FW,core,piece,Consumable,Yes,No,no,
-FW12,Vegetables,FW,core,kg,Consumable,Yes,No,no,
-FW13,Fruit,FW,core,kg,Consumable,Yes,No,no,
-FW14,Biscuits / dry snacks,FW,core,packet,Consumable,No,No,no,
-FW15,Bread,FW,core,packet,Consumable,Yes,No,no,
-FW16,Ready-to-eat meals,FW,core,packet,Consumable,Semi,No,no,
-FW17,Energy foods / high-energy biscuits,FW,core,packet,Consumable,No,No,no,
-FW18,Drinking water sachets,FW,core,pack,Consumable,No,No,no,
-FW19,Infant formula,FW,core,tin,Consumable,Semi,No,yes,
-FW20,Baby cereal,FW,core,packet,Consumable,No,No,yes,
-FW21,Milk powder,FW,core,packet,Consumable,No,No,yes,
-FW22,"Special diet food (diabetic, elderly, soft food)",FW,core,packet,Consumable,Semi,Yes,no,TBC - confirm with DDMA
-FW23,Jaggery,FW,core,kg,Consumable,No,No,no,
-FW24,Pressed / beaten rice (aval),FW,core,kg,Consumable,No,No,no,
-CB01,Men's clothing,CB,core,set,Consumable,No,No,no,
-CB02,Women's clothing,CB,core,set,Consumable,No,No,no,
-CB03,Children's clothing,CB,core,set,Consumable,No,No,no,
-CB04,Infant clothing,CB,core,set,Consumable,No,No,no,
-CB05,Nightwear,CB,core,set,Consumable,No,No,no,
-CB06,Innerwear,CB,core,piece,Consumable,No,No,no,
-CB07,Saree,CB,core,piece,Consumable,No,No,no,
-CB08,Mundu,CB,core,piece,Consumable,No,No,no,
-CB09,School uniform,CB,core,set,Consumable,No,No,no,
-CB10,Bed sheet,CB,core,piece,Durable,No,No,no,
-CB11,Blanket,CB,core,piece,Durable,No,No,no,
-CB12,Floor / sleeping mat,CB,core,piece,Durable,No,No,no,
-CB13,Pillow,CB,core,piece,Durable,No,No,no,
-CB14,Mattress,CB,core,piece,Durable,No,No,no,
-CB15,Towel,CB,core,piece,Consumable,No,No,no,
-CB16,Slippers,CB,core,pair,Consumable,No,No,no,
-CB17,Shoes,CB,core,pair,Consumable,No,No,no,
-CB18,Raincoat,CB,core,piece,Durable,No,No,no,
-CB19,Woollens / jackets (cold areas),CB,core,piece,Durable,No,No,no,
-CB20,Headscarf,CB,core,piece,Consumable,No,No,no,
-SH01,Bathing soap,SH,core,piece,Consumable,No,No,no,
-SH02,Washing soap / detergent,SH,core,piece,Consumable,No,No,no,
-SH03,Toothpaste,SH,core,tube,Consumable,No,No,no,
-SH04,Toothbrush,SH,core,piece,Consumable,No,No,no,
-SH05,Shampoo,SH,core,sachet / bottle,Consumable,No,No,no,
-SH06,Coconut oil (hair and skin),SH,core,bottle,Consumable,No,No,no,
-SH07,Comb,SH,core,piece,Consumable,No,No,no,
-SH08,Nail clipper,SH,core,piece,Durable,No,No,no,
-SH09,Razor,SH,core,piece,Consumable,No,No,no,
-SH10,Sanitary napkins,SH,core,packet,Consumable,No,No,no,
-SH11,Baby diapers,SH,core,packet,Consumable,No,No,no,
-SH12,Adult diapers,SH,core,packet,Consumable,No,No,no,
-SH13,Tissue / toilet paper,SH,core,roll,Consumable,No,No,no,
-SH14,Hand sanitizer,SH,core,bottle,Consumable,No,No,no,
-SH15,Handwash liquid,SH,core,bottle,Consumable,No,No,no,
-SH16,Bleaching powder,SH,core,kg,Consumable,No,No,no,
-SH17,Phenyl / disinfectant,SH,core,litre,Consumable,No,No,no,
-SH18,Garbage bags,SH,core,packet,Consumable,No,No,no,
-SH19,Dustbins,SH,core,piece,Durable,No,No,no,
-SH20,Brooms,SH,core,piece,Durable,No,No,no,
-SH21,Mops,SH,core,piece,Durable,No,No,no,
-SH22,Buckets,SH,core,piece,Durable,No,No,no,
-SH23,Mugs,SH,core,piece,Durable,No,No,no,
-SH24,Scrubbing brushes,SH,core,piece,Durable,No,No,no,
-SH25,Portable / mobile toilets,SH,core,unit,Infrastructure,No,No,no,TBC - confirm with DDMA
-SH26,Privacy screens (bathing and toilet areas),SH,core,piece,Durable,No,No,no,TBC - confirm with DDMA
-MF01,First aid kit,MF,core,kit,Durable,No,No,yes,
-MF02,ORS packets,MF,core,packet,Consumable,Yes,No,yes,(expiry)
-MF03,Bandages,MF,core,pack,Consumable,No,No,yes,
-MF04,Cotton,MF,core,pack,Consumable,No,No,yes,
-MF05,Gauze,MF,core,pack,Consumable,No,No,yes,
-MF06,Antiseptic solution / cream,MF,core,bottle,Consumable,Yes,No,yes,(expiry)
-MF07,Medical gloves,MF,core,pack,Consumable,No,No,yes,
-MF08,Face masks,MF,core,piece,Consumable,No,No,yes,
-MF09,Thermometer,MF,core,piece,Durable,No,No,yes,
-MF10,BP apparatus,MF,core,piece,Durable,No,No,yes,
-MF11,Glucometer (with strips),MF,core,piece,Durable,Yes,No,yes,(strip expiry)
-MF12,Fever and pain medicines,MF,core,strip,Consumable,Yes,Yes,yes,(expiry)
-MF13,Anti-diarrhoeal medicines,MF,core,strip,Consumable,Yes,Yes,yes,(expiry)
-MF14,Antibiotics,MF,core,strip,Consumable,Yes,Yes,yes,(expiry)
-MF15,Anti-allergy medicines,MF,core,strip,Consumable,Yes,Yes,yes,(expiry)
-MF16,Skin infection / anti-fungal medicines,MF,core,tube / strip,Consumable,Yes,Yes,yes,(expiry)
-MF17,"Chronic-illness medicines (BP, sugar)",MF,core,unit,Consumable,Yes,Yes,yes,(expiry)
-MF18,Vaccines (e.g. tetanus),MF,core,dose,Consumable,Yes,Yes,yes,(cold chain); TBC - confirm with DDMA
-MF19,Mosquito repellent,MF,core,bottle,Consumable,No,No,yes,
-MF20,Mosquito nets,MF,core,piece,Durable,No,No,yes,
-MF21,Water purification tablets,MF,core,strip,Consumable,Yes,No,yes,(expiry)
-MF22,Oxygen cylinder,MF,core,unit,Durable,No,Yes,yes,TBC - confirm with DDMA
-MF23,Stretcher,MF,core,piece,Durable,No,No,yes,TBC - confirm with DDMA
-MF24,Snake bite and rabies related supplies,MF,core,unit,Consumable,Yes,Yes,yes,(expiry); TBC - confirm with DDMA
-KU01,Cooking vessels (large),KU,core,piece,Durable,No,No,no,
-KU02,Pressure cookers,KU,core,piece,Durable,No,No,no,
-KU03,Ladles,KU,core,piece,Durable,No,No,no,
-KU04,Spoons,KU,core,piece,Durable,No,No,no,
-KU05,Knives,KU,core,piece,Durable,No,No,no,
-KU06,Plates,KU,core,piece,Durable,No,No,no,
-KU07,Cups / tumblers,KU,core,piece,Durable,No,No,no,
-KU08,Serving containers,KU,core,piece,Durable,No,No,no,
-KU09,Storage containers,KU,core,piece,Durable,No,No,no,
-KU10,Water storage tanks / cans,KU,core,piece,Durable,No,No,no,
-KU11,Gas stove,KU,core,piece,Durable,No,No,no,
-KU12,Gas cylinder,KU,core,piece,Durable,No,No,no,
-KU13,Firewood,KU,core,kg,Consumable,No,No,no,
-KU14,Kerosene,KU,core,litre,Consumable,No,No,no,
-KU15,Matchbox / lighter,KU,core,piece,Consumable,No,No,no,
-KU16,Kitchen towels,KU,core,piece,Consumable,No,No,no,
-SU01,Tarpaulin,SU,core,piece,Durable,No,No,no,
-SU02,Tent,SU,core,piece,Durable,No,No,no,
-SU03,Plastic sheet,SU,core,piece,Durable,No,No,no,
-SU04,Rope,SU,core,metre,Durable,No,No,no,
-SU05,Poles,SU,core,piece,Durable,No,No,no,
-SU06,Wooden planks,SU,core,piece,Durable,No,No,no,
-SU07,Torch / flashlight,SU,core,piece,Durable,No,No,no,
-SU08,Batteries,SU,core,pack,Consumable,No,No,no,
-SU09,Candles,SU,core,packet,Consumable,No,No,no,
-SU10,Solar lamp,SU,core,piece,Durable,No,No,no,
-SU11,Power bank,SU,core,piece,Durable,No,No,no,
-SU12,Generator,SU,core,unit,Durable,No,No,no,
-SU13,Generator fuel,SU,core,litre,Consumable,No,No,no,
-SU14,Extension board,SU,core,piece,Durable,No,No,no,
-SU15,Bulbs,SU,core,piece,Consumable,No,No,no,
-SU16,Umbrella,SU,core,piece,Durable,No,No,no,
-SU17,Fan,SU,core,piece,Durable,No,No,no,
-SU18,Sandbags,SU,core,piece,Consumable,No,No,no,
-SU19,Shovel,SU,core,piece,Durable,No,No,no,
-SU20,Axe,SU,core,piece,Durable,No,No,no,
-SG01,Feeding bottles,SG,extended,piece,Durable,No,No,yes,TBC - confirm with DDMA
-SG02,Baby wipes,SG,extended,packet,Consumable,No,No,no,TBC - confirm with DDMA
-SG03,Cradle / baby bed,SG,extended,piece,Durable,No,No,no,TBC - confirm with DDMA
-SG04,Toys / play materials,SG,extended,piece,Durable,No,No,no,TBC - confirm with DDMA
-SG05,School bags,SG,extended,piece,Durable,No,No,no,TBC - confirm with DDMA
-SG06,Notebooks,SG,extended,piece,Consumable,No,No,no,TBC - confirm with DDMA
-SG07,Pencils / pens,SG,extended,piece,Consumable,No,No,no,TBC - confirm with DDMA
-SG08,Textbooks,SG,extended,piece,Consumable,No,No,no,TBC - confirm with DDMA
-SG09,Walking sticks,SG,extended,piece,Durable,No,No,no,TBC - confirm with DDMA
-SG10,Crutches,SG,extended,pair,Durable,No,No,no,TBC - confirm with DDMA
-SG11,Wheelchairs,SG,extended,piece,Durable,No,No,no,TBC - confirm with DDMA
-SG12,Walking frames / aids,SG,extended,piece,Durable,No,No,no,TBC - confirm with DDMA
-SG13,Hearing aids,SG,extended,piece,Durable,No,Yes,no,TBC - confirm with DDMA
-SG14,Spectacles,SG,extended,piece,Durable,No,Yes,no,TBC - confirm with DDMA
-SG15,Special beds,SG,extended,piece,Durable,No,No,yes,TBC - confirm with DDMA
-SG16,Women-specific health supplies,SG,extended,pack,Consumable,Yes,Yes,no,(expiry); TBC - confirm with DDMA
-SG17,Nutrition supplements for pregnant women,SG,extended,pack,Consumable,Yes,Yes,yes,(expiry); TBC - confirm with DDMA
-SG18,Nutrition packs for pregnant women,SG,extended,pack,Consumable,Semi,Yes,no,TBC - confirm with DDMA
-SG19,Referral transport for pregnant women,SG,extended,trip,Service,No,Yes,yes,TBC - confirm with DDMA
-CA01,Phones,CA,extended,piece,Durable,No,No,no,TBC - confirm with DDMA
-CA02,Chargers,CA,extended,piece,Durable,No,No,no,TBC - confirm with DDMA
-CA03,SIM cards,CA,extended,piece,Consumable,No,No,no,TBC - confirm with DDMA
-CA04,Walkie-talkies,CA,extended,piece,Durable,No,No,no,TBC - confirm with DDMA
-CA05,Registers,CA,extended,piece,Consumable,No,No,no,TBC - confirm with DDMA
-CA06,Stationery,CA,extended,pack,Consumable,No,No,no,TBC - confirm with DDMA
-CA07,ID cards / wristbands,CA,extended,piece,Consumable,No,No,no,TBC - confirm with DDMA
-CA08,Token slips,CA,extended,pad,Consumable,No,No,no,TBC - confirm with DDMA
-CA09,Printed forms,CA,extended,pack,Consumable,No,No,no,TBC - confirm with DDMA
-CA10,Resident lists,CA,extended,copy,Consumable,No,No,no,TBC - confirm with DDMA
-CA11,Signboards,CA,extended,piece,Durable,No,No,no,TBC - confirm with DDMA
-CA12,QR code cards / delivery slips (added for this platform),CA,extended,pack,Consumable,No,No,no,TBC - confirm with DDMA
-SS01,Fire extinguishers,SS,extended,piece,Durable,No,No,no,TBC - confirm with DDMA
-SS02,Lifejackets,SS,extended,piece,Durable,No,No,yes,TBC - confirm with DDMA
-SS03,Life buoys,SS,extended,piece,Durable,No,No,yes,TBC - confirm with DDMA
-SS04,Rescue boats,SS,extended,unit,Durable,No,Yes,yes,TBC - confirm with DDMA
-SS05,Rescue ropes,SS,extended,metre,Durable,No,No,yes,TBC - confirm with DDMA
-SS06,Helmets,SS,extended,piece,Durable,No,No,no,TBC - confirm with DDMA
-SS07,Whistles,SS,extended,piece,Consumable,No,No,no,TBC - confirm with DDMA
-SS08,Safety lighting (including women-safe lighting),SS,extended,piece,Durable,No,No,no,TBC - confirm with DDMA
-SS09,Emergency exits,SS,extended,unit,Infrastructure,No,No,no,TBC - confirm with DDMA
-SS10,Security staff,SS,extended,person,Service,No,Yes,no,TBC - confirm with DDMA
-WI01,Waste collection vehicles,WI,extended,unit,Service,No,Yes,no,TBC - confirm with DDMA
-WI02,Waste pits / incinerators,WI,extended,unit,Infrastructure,No,Yes,no,TBC - confirm with DDMA
-WI03,Drainage works,WI,extended,unit,Infrastructure,No,Yes,no,TBC - confirm with DDMA
-WI04,Water filters,WI,extended,piece,Durable,No,No,no,TBC - confirm with DDMA
-WI05,Water tankers,WI,extended,trip,Service,No,No,no,TBC - confirm with DDMA
-WI06,Chlorine,WI,extended,kg,Consumable,No,No,no,TBC - confirm with DDMA
-PR01,Counselling support,PR,extended,session,Service,No,Yes,no,TBC - confirm with DDMA
-PR02,Games,PR,extended,set,Durable,No,No,no,TBC - confirm with DDMA
-PR03,Play mats,PR,extended,piece,Durable,No,No,no,TBC - confirm with DDMA
-PR04,Play area,PR,extended,unit,Infrastructure,No,No,no,TBC - confirm with DDMA
-PR05,Radio,PR,extended,piece,Durable,No,No,no,TBC - confirm with DDMA
-PR06,TV,PR,extended,piece,Durable,No,No,no,TBC - confirm with DDMA
-LV01,Fodder,LV,extended,kg,Consumable,Yes,No,no,TBC - confirm with DDMA
-LV02,Veterinary supplies,LV,extended,kit,Consumable,Yes,Yes,no,(expiry); TBC - confirm with DDMA
-LV03,Animal shelter,LV,extended,unit,Infrastructure,No,No,no,TBC - confirm with DDMA
-RC01,Gum boots,RC,extended,pair,Durable,No,No,no,TBC - confirm with DDMA
-RC02,Cleaning gloves,RC,extended,pair,Consumable,No,No,no,TBC - confirm with DDMA
-RC03,Cleaning tools,RC,extended,set,Durable,No,No,no,TBC - confirm with DDMA
-RC04,Water pumps,RC,extended,unit,Durable,No,No,no,TBC - confirm with DDMA
-RC05,Re-entry household kits,RC,extended,kit,Consumable,No,No,no,TBC - confirm with DDMA
-TL01,Vehicles,TL,extended,unit,Service,No,Yes,no,TBC - confirm with DDMA
-TL02,Vehicle fuel,TL,extended,litre,Consumable,No,No,no,TBC - confirm with DDMA
-TL03,Drivers,TL,extended,person,Service,No,Yes,no,TBC - confirm with DDMA
-TL04,Loading / unloading support,TL,extended,person,Service,No,Yes,no,TBC - confirm with DDMA
-TL05,Boats (transport),TL,extended,unit,Service,No,Yes,no,TBC - confirm with DDMA
+item_code,name,category,unit,perishable,requires_approval,emergency_eligible,acceptance_rule,norm_note
+FW01,Rice,FW,kg,false,false,,,
+FW02,Sugar,FW,kg,false,false,,,
+FW03,Salt,FW,kg,false,false,,,
+FW04,Vegetables,FW,kg,true,false,,,
+FW05,Food grains (other than rice),FW,kg,false,false,,,
+FW06,Cooking oil,FW,litre,false,false,,,
+FW07,Rusk,FW,packet,false,false,,No bread,
+FW08,Biscuits,FW,packet,false,false,,No cream biscuits,
+FW09,Drinking water,FW,can (20 L),false,false,,Only 20-litre cans,One 20L can covers roughly 7 people for one day
+FW10,Tea / coffee powder,FW,packet,false,false,,,
+FW11,Pulses,FW,kg,false,false,,,
+CB01,Bed sheets,CB,piece,false,false,,,
+CB02,Bathing towel (thorthu),CB,piece,false,false,,,
+CB03,Sleeping mats,CB,piece,false,false,,,
+CB04,Blankets,CB,piece,false,false,,,
+CB05,Pillow,CB,piece,false,false,,,
+CB06,Adult clothes,CB,set,false,false,,,
+CB07,Childrens clothes,CB,set,false,false,,,
+SG01,School bag,SG,piece,false,false,,,
+SG02,Notebooks,SG,piece,false,false,,,
+SG03,Pencil box,SG,piece,false,false,,,
+SG04,Pens,SG,piece,false,false,,,
+SH01,Bleaching powder,SH,kg,false,false,,,
+SH02,Mop,SH,piece,false,false,,,
+SH03,Phenol / Dettol,SH,bottle,false,false,,,
+SH04,Brush,SH,piece,false,false,,,
+SH05,Cleaning liquids,SH,bottle,false,false,,,
+SH06,Baby diapers,SH,packet,false,false,,,
+SH07,Adult diapers,SH,packet,false,false,,,
+SH08,Sanitary napkins,SH,packet,false,false,,,
+SH09,Toothpaste,SH,tube,false,false,,,
+SH10,Tooth brushes,SH,piece,false,false,,,
+SH11,Body soap,SH,piece,false,false,,,
+SH12,Washing soap,SH,piece,false,false,,,
+MF01,ORS packets / electrolytes,MF,packet,false,false,,,
+MF02,Mosquito repellents / Odomos,MF,piece,false,false,,,
+MF03,Antiseptic lotion,MF,bottle,false,false,,,
+MF04,Anti-fungal powder,MF,piece,false,false,,,
+SU01,Candles,SU,packet,false,false,,,
+KU01,Match box,KU,packet,false,false,,,
