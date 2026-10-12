@@ -1,4 +1,4 @@
-# DisasterReliefMVP — Team Guide (The Standard Document)
+# relief-coordination-system — Team Guide (The Standard Document)
 
 **Project (working title):** Priority-Based Disaster Relief Resource Allocation and Routing Platform for Kerala
 **Team:** Group 07 · Guide: Reshma Raj K.S.
@@ -166,7 +166,7 @@ Open **Command Prompt** (or the terminal in VS Code) and run these one at a time
 
 ```
 git clone <PASTE-THE-REPO-LINK-HERE>
-cd DisasterReliefMVP
+cd relief-coordination-system
 python -m venv venv
 venv\Scripts\activate
 pip install -r requirements.txt
@@ -210,7 +210,7 @@ You are in four different places. Each person runs the **same** `schema.sql` and
 📌 **Contract — do not move or rename files without asking.**
 
 ```
-DisasterReliefMVP/
+relief-coordination-system/
 ├── main.py                  [A]  starts the app; adds one line per router
 ├── config.py                [A]  settings + SAW weights
 ├── database.py              [A]  connects to PostgreSQL
@@ -1013,7 +1013,7 @@ Antigravity writes code from your instructions. It is fast but it can make mista
 
 ```
 You are helping a team of final-year students who are NOT confident coders build
-a university project called DisasterReliefMVP (a disaster relief allocation
+a university project called relief-coordination-system (a disaster relief allocation
 platform for Kerala). Explain things in plain language. Work in small steps.
 
 FIRST read docs/DisasterRelief_Team_Guide.md (at least Sections 1, 5, 6, 8, 9, 10
