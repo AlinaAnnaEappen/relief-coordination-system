@@ -1,0 +1,21 @@
+request_id,camp_id,submitted_by,status,escalated,comment,created_at,item_code,qty_requested
+1,1,2,pending,true,Urgent: floodwaters rising near school gate grain and blankets required immediately,2026-08-15T08:00:00Z,FW02,60
+1,1,2,pending,true,Urgent: floodwaters rising near school gate grain and blankets required immediately,2026-08-15T08:00:00Z,CB11,30
+1,1,2,pending,true,Urgent: floodwaters rising near school gate grain and blankets required immediately,2026-08-15T08:00:00Z,FW01,200
+1,1,2,pending,true,Urgent: floodwaters rising near school gate grain and blankets required immediately,2026-08-15T08:00:00Z,MF02,50
+2,2,2,pending,true,Kuttanad isolated by floodwaters urgent drinking water infant formula and hygiene supplies needed,2026-08-15T06:00:00Z,FW02,50
+2,2,2,pending,true,Kuttanad isolated by floodwaters urgent drinking water infant formula and hygiene supplies needed,2026-08-15T06:00:00Z,FW01,300
+2,2,2,pending,true,Kuttanad isolated by floodwaters urgent drinking water infant formula and hygiene supplies needed,2026-08-15T06:00:00Z,SH10,50
+2,2,2,pending,true,Kuttanad isolated by floodwaters urgent drinking water infant formula and hygiene supplies needed,2026-08-15T06:00:00Z,FW19,25
+2,2,2,pending,true,Kuttanad isolated by floodwaters urgent drinking water infant formula and hygiene supplies needed,2026-08-15T06:00:00Z,SG01,20
+3,3,2,pending,false,Routine replenishment for community kitchen and camp sanitization,2026-08-15T09:30:00Z,FW02,40
+3,3,2,pending,false,Routine replenishment for community kitchen and camp sanitization,2026-08-15T09:30:00Z,SH16,25
+3,3,2,pending,false,Routine replenishment for community kitchen and camp sanitization,2026-08-15T09:30:00Z,FW06,20
+4,4,2,pending,false,Evening intake replenishment for incoming evacuees,2026-08-15T10:00:00Z,FW02,70
+4,4,2,pending,false,Evening intake replenishment for incoming evacuees,2026-08-15T10:00:00Z,CB11,35
+4,4,2,pending,false,Evening intake replenishment for incoming evacuees,2026-08-15T10:00:00Z,MF19,40
+5,5,2,pending,true,Coastal surge contaminated local wells urgent clean water and biscuits needed,2026-08-15T07:15:00Z,FW01,400
+5,5,2,pending,true,Coastal surge contaminated local wells urgent clean water and biscuits needed,2026-08-15T07:15:00Z,SH11,40
+5,5,2,pending,true,Coastal surge contaminated local wells urgent clean water and biscuits needed,2026-08-15T07:15:00Z,FW14,80
+6,6,2,pending,false,Supplementary dry items for camp pantry,2026-08-14T11:00:00Z,FW08,15
+6,6,2,pending,false,Supplementary dry items for camp pantry,2026-08-14T11:00:00Z,FW06,25
