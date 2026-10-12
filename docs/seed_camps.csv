@@ -1,0 +1,7 @@
+camp_id,name,district,address,latitude,longitude,capacity,occupancy,children_count,elderly_count,pregnant_count,disabled_count,damage_level,access_difficulty,status,last_supply_at
+1,Chengannur Relief Camp (Govt Higher Secondary School),Alappuzha,Near Chengannur Railway Station,9.320000,76.610000,500,400,90,60,10,5,4,5,active,2026-08-13T12:00:00Z
+2,Kuttanad Relief Camp (St. Marys Church Kainakary),Alappuzha,Kainakary Waterlogged Lowland,9.460000,76.400000,600,500,120,80,15,10,5,5,active,2026-08-12T00:00:00Z
+3,Thiruvalla Relief Camp (MGM Higher Secondary School),Pathanamthitta,Market Road Thiruvalla,9.380000,76.570000,200,150,30,20,2,1,2,2,active,2026-08-15T00:00:00Z
+4,Pathanamthitta Relief Camp (Catholicate College),Pathanamthitta,College Hill Ring Road Pathanamthitta,9.260000,76.780000,300,220,50,40,5,3,3,3,active,2026-08-14T12:00:00Z
+5,Alappuzha Relief Camp (SDV College),Alappuzha,Palace Ward Alappuzha West,9.490000,76.330000,400,300,70,45,8,4,3,4,active,2026-08-14T00:00:00Z
+6,Changanassery Relief Camp (SB College),Kottayam,College Road Changanassery,9.440000,76.540000,100,80,15,12,1,0,1,1,active,2026-08-15T08:00:00Z
