@@ -1,0 +1,4 @@
+hub_id,name,district,address,latitude,longitude,active
+1,Test Hub Alappuzha,Alappuzha,SDV School Ground Alappuzha,9.490000,76.330000,true
+2,Test Hub Kottayam,Kottayam,Nehru Stadium Complex Nagampadam Kottayam,9.590000,76.520000,true
+3,Test Hub Pathanamthitta,Pathanamthitta,Municipal Stadium Ring Road Pathanamthitta,9.260000,76.780000,true
