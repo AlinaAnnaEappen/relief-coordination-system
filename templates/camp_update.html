@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="camp-form-container">
+  <div class="page-header">
+    <h2>Update Camp: {{ camp.name }}</h2>
+    <span class="badge badge-district">{{ camp.district }}</span>
+  </div>
+
+  {% if errors %}
+    <div class="error-box">
+      <strong>Please correct the following:</strong>
+      <ul>
+        {% for error in errors %}
+          <li>{{ error }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+
+  <form action="/camps/{{ camp.camp_id }}/update" method="post" class="camp-form">
+    {# Admin-only fields: only shown and editable when logged in as admin #}
+    {% if user and user.role == 'admin' %}
+      <fieldset class="admin-fields">
+        <legend>Administrative Details (Admin Only)</legend>
+        
+        <div class="form-group">
+          <label for="name">Camp Name *</label>
+          <input type="text" id="name" name="name" value="{{ camp.name or '' }}" required>
+          <span class="help-text">Official name of the relief camp or shelter center.</span>
+        </div>
+
+        <div class="form-group">
+          <label for="district">District *</label>
+          <input type="text" id="district" name="district" value="{{ camp.district or '' }}" required list="district-options">
+          <datalist id="district-options">
+            <option value="Alappuzha">
+            <option value="Ernakulam">
+            <option value="Idukki">
+            <option value="Kannur">
+            <option value="Kasaragod">
+            <option value="Kollam">
+            <option value="Kottayam">
+            <option value="Kozhikode">
+            <option value="Malappuram">
+            <option value="Palakkad">
+            <option value="Pathanamthitta">
+            <option value="Thiruvananthapuram">
+            <option value="Thrissur">
+            <option value="Wayanad">
+          </datalist>
+          <span class="help-text">Administrative district in Kerala where the camp is situated.</span>
+        </div>
+
+        <div class="form-group">
+          <label for="address">Address</label>
+          <textarea id="address" name="address" rows="3">{{ camp.address or '' }}</textarea>
+          <span class="help-text">Full physical location, village, or nearest landmark.</span>
+        </div>
+
+        <div class="form-group">
+          <label for="latitude">Latitude *</label>
+          <input type="number" step="any" id="latitude" name="latitude" value="{{ camp.latitude or '' }}" required>
+          <span class="help-text">GPS latitude in decimal degrees (-90.0 to 90.0; e.g. 9.981600).</span>
+        </div>
+
+        <div class="form-group">
+          <label for="longitude">Longitude *</label>
+          <input type="number" step="any" id="longitude" name="longitude" value="{{ camp.longitude or '' }}" required>
+          <span class="help-text">GPS longitude in decimal degrees (-180.0 to 180.0; e.g. 76.299900).</span>
+        </div>
+
+        <div class="form-group">
+          <label for="capacity">Capacity</label>
+          <input type="number" min="0" step="1" id="capacity" name="capacity" value="{{ camp.capacity if camp.capacity is not none else '' }}">
+          <span class="help-text">Maximum persons the camp can safely house (leave empty or ≥ 0).</span>
+        </div>
+
+        <div class="form-group">
+          <label for="status">Status *</label>
+          <select id="status" name="status">
+            <option value="active" {% if camp.status == 'active' %}selected{% endif %}>Active</option>
+            <option value="closed" {% if camp.status == 'closed' %}selected{% endif %}>Closed</option>
+          </select>
+          <span class="help-text">Active camps can submit requests and receive supply allocations.</span>
+        </div>
+      </fieldset>
+    {% endif %}
+
+    {# Camp Officer operational fields (editable by officer and admin) #}
+    <fieldset class="operational-fields">
+      <legend>Occupancy and Camp Conditions</legend>
+
+      <div class="form-group">
+        <label for="occupancy">Occupancy *</label>
+        <input type="number" min="0" step="1" id="occupancy" name="occupancy" value="{{ camp.occupancy if camp.occupancy is not none else 0 }}" required>
+        <span class="help-text">how many people are staying in the camp today</span>
+      </div>
+
+      <div class="form-group">
+        <label for="children_count">Children Count</label>
+        <input type="number" min="0" step="1" id="children_count" name="children_count" value="{{ camp.children_count if camp.children_count is not none else 0 }}">
+        <span class="help-text">how many people in that group (a person may be in more than one group)</span>
+      </div>
+
+      <div class="form-group">
+        <label for="elderly_count">Elderly Count</label>
+        <input type="number" min="0" step="1" id="elderly_count" name="elderly_count" value="{{ camp.elderly_count if camp.elderly_count is not none else 0 }}">
+        <span class="help-text">how many people in that group (a person may be in more than one group)</span>
+      </div>
+
+      <div class="form-group">
+        <label for="pregnant_count">Pregnant Women Count</label>
+        <input type="number" min="0" step="1" id="pregnant_count" name="pregnant_count" value="{{ camp.pregnant_count if camp.pregnant_count is not none else 0 }}">
+        <span class="help-text">how many people in that group (a person may be in more than one group)</span>
+      </div>
+
+      <div class="form-group">
+        <label for="disabled_count">Persons with Disabilities Count</label>
+        <input type="number" min="0" step="1" id="disabled_count" name="disabled_count" value="{{ camp.disabled_count if camp.disabled_count is not none else 0 }}">
+        <span class="help-text">how many people in that group (a person may be in more than one group)</span>
+      </div>
+
+      <div class="form-group">
+        <label for="damage_level">Damage Level (1 to 5) *</label>
+        <select id="damage_level" name="damage_level">
+          <option value="1" {% if camp.damage_level == 1 %}selected{% endif %}>1 - Little or no damage</option>
+          <option value="2" {% if camp.damage_level == 2 %}selected{% endif %}>2 - Minor damage</option>
+          <option value="3" {% if camp.damage_level == 3 %}selected{% endif %}>3 - Moderate damage</option>
+          <option value="4" {% if camp.damage_level == 4 %}selected{% endif %}>4 - Major damage</option>
+          <option value="5" {% if camp.damage_level == 5 %}selected{% endif %}>5 - Severe damage</option>
+        </select>
+        <span class="help-text">1 = little damage, 5 = severe damage</span>
+      </div>
+
+      <div class="form-group">
+        <label for="access_difficulty">Access Difficulty (1 to 5) *</label>
+        <select id="access_difficulty" name="access_difficulty">
+          <option value="1" {% if camp.access_difficulty == 1 %}selected{% endif %}>1 - Easy road access</option>
+          <option value="2" {% if camp.access_difficulty == 2 %}selected{% endif %}>2 - Minor road blockages</option>
+          <option value="3" {% if camp.access_difficulty == 3 %}selected{% endif %}>3 - Partial inundation / heavy vehicles only</option>
+          <option value="4" {% if camp.access_difficulty == 4 %}selected{% endif %}>4 - Highly restricted access</option>
+          <option value="5" {% if camp.access_difficulty == 5 %}selected{% endif %}>5 - Flooded roads or boat only</option>
+        </select>
+        <span class="help-text">1 = easy to reach by road, 5 = very hard to reach (for example flooded roads or boat only)</span>
+      </div>
+    </fieldset>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">Save Changes</button>
+      <a href="/camps" class="btn btn-secondary">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
