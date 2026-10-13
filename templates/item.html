@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Item Catalog</h1>
+
+{# ── Summary line ──────────────────────────────────────────────────── #}
+<p style="margin-bottom:1em; font-size:0.95em; color:#555;">
+    <strong>{{ total }}</strong> items shown
+    &nbsp;·&nbsp;
+    <strong>{{ emergency_count }}</strong> emergency-eligible
+    &nbsp;·&nbsp;
+    <strong>{{ approval_count }}</strong> need approval
+</p>
+
+{# ── Filter form ───────────────────────────────────────────────────── #}
+<form method="get" action="/items" style="display:flex; flex-wrap:wrap; gap:0.7em; align-items:center;
+             margin-bottom:1.5em; padding:0.8em; border:1px solid #ccc;
+             border-radius:4px; background:#fafafa;">
+
+    <label for="filter-group">Group:</label>
+    <select id="filter-group" name="group_code">
+        <option value="">All</option>
+        {% for code in all_codes %}
+        <option value="{{ code }}" {% if sel_group==code %}selected{% endif %}>
+            {{ code }} – {{ group_names[code] }}
+        </option>
+        {% endfor %}
+    </select>
+
+    <label for="filter-kind">Kind:</label>
+    <select id="filter-kind" name="group_kind">
+        <option value="">All</option>
+        <option value="core" {% if sel_kind=='core' %}selected{% endif %}>Core</option>
+        <option value="extended" {% if sel_kind=='extended' %}selected{% endif %}>Extended</option>
+    </select>
+
+    <label>
+        <input type="checkbox" name="emergency_only" value="true" {% if sel_emergency=='true' %}checked{% endif %}>
+        Emergency only
+    </label>
+
+    <button type="submit">Show</button>
+</form>
+
+{# ── Grouped item tables ──────────────────────────────────────────── #}
+{% set ns = namespace(shown_extended_header=false) %}
+
+{% for code, items in grouped.items() %}
+
+{# Show divider before the first extended group #}
+{% if code in extended_codes and not ns.shown_extended_header %}
+<hr style="margin:2em 0 1em; border:none; border-top:2px dashed #aaa;">
+<h2 style="color:#666; font-size:1.1em; letter-spacing:0.05em;">
+    ── Extended Groups ──
+</h2>
+{% set ns.shown_extended_header = true %}
+{% endif %}
+
+<h3 style="margin-top:1.5em;">
+    {{ code }} – {{ group_names.get(code, code) }}
+    <span style="font-weight:normal; font-size:0.85em; color:#888;">
+        ({{ items | length }} item{{ 's' if items | length != 1 else '' }})
+    </span>
+</h3>
+
+<table border="1" cellpadding="5" cellspacing="0" style="border-collapse:collapse; width:100%; margin-bottom:1em;
+                font-size:0.9em;">
+    <thead style="background:#f0f0f0;">
+        <tr>
+            <th>Code</th>
+            <th>Name</th>
+            <th>Unit</th>
+            <th>Type</th>
+            <th>Perishable</th>
+            <th>Approval</th>
+            <th>Emergency</th>
+            <th>Notes</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in items %}
+        <tr>
+            <td><code>{{ item.item_code }}</code></td>
+            <td>{{ item.name }}</td>
+            <td>{{ item.unit }}</td>
+            <td>{{ item.item_type }}</td>
+            <td>{{ item.perishable }}</td>
+            <td>{{ item.requires_approval }}</td>
+            <td>
+                {% if item.emergency_eligible %}
+                <span style="display:inline-block; padding:2px 8px;
+                         background:#d4edda; color:#155724;
+                         border-radius:3px; font-size:0.8em;
+                         font-weight:bold;">
+                    Emergency
+                </span>
+                {% else %}
+                –
+                {% endif %}
+            </td>
+            <td style="font-size:0.85em; color:#666;">{{ item.notes or '' }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% else %}
+<p style="color:#999; margin-top:2em;">No items match the current filters.</p>
+{% endfor %}
+
+{% endblock %}
