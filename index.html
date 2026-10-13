@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="KSDMA Priority-Based Disaster Relief Resource Allocation & Distribution System - Interactive Prototype featuring Role-Based Logins, SAW MCDM, QRF Demand Forecasting, LP Transportation Solver, and Dual-Stage QR Verification.">
+  <title>KSDMA Disaster Relief Resource Allocation System | Prototype</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-container">
+    
+    <!-- Top Government Command Header -->
+    <header class="gov-top-banner">
+      <div class="gov-brand">
+        <div class="gov-emblem">KL</div>
+        <div class="gov-title-block">
+          <h2>Kerala State Disaster Management Authority (KSDMA)</h2>
+          <p>Disaster Relief Resource Allocation & Distribution System • Alappuzha Emergency Operations Center</p>
+        </div>
+      </div>
+
+      <div class="system-status-badges">
+        <div class="alert-badge">
+          <span class="pulse-dot"></span>
+          <span>Red Alert (Level 3)</span>
+        </div>
+        <div class="clock-badge" id="live-system-clock">10:00:00 IST</div>
+      </div>
+    </header>
+
+    <!-- User Session & Navigation Bar (Visible When Logged In) -->
+    <nav id="user-session-bar" class="user-session-bar" style="display:none;" aria-label="Session Navigation">
+      <div class="user-identity-pill">
+        <span style="color:var(--text-muted);">👤 Active Session:</span>
+        <strong id="session-user-name" style="color:#ffffff;">User Name</strong>
+        <span id="session-role-badge" class="user-role-badge donor">Public Donor</span>
+      </div>
+z
+      <div style="display:flex; align-items:center; gap:12px;">
+        <button class="btn-viva-demo" onclick="startVivaDemoTour()" title="Interactive step-by-step presentation for project guide & evaluators">
+          <span>🎓</span> Viva Demo Tour
+        </button>
+        <button class="btn-contrast-toggle" onclick="toggleContrastTheme()" title="Toggle High Contrast">
+          <span>👁️</span> Contrast
+        </button>
+        <button class="btn-logout" onclick="logout()" title="Logout and return to Login Gateway">
+          <span>🚪</span> Logout / Switch User
+        </button>
+      </div>
+    </nav>
+
+    <!-- Guided Viva Tour Floating Banner -->
+    <div id="viva-tour-banner" class="viva-banner" style="display:none;">
+      <div style="display:flex; align-items:center; gap:16px;">
+        <span class="badge badge-purple" id="viva-step-num">Step 1 of 6</span>
+        <div>
+          <strong id="viva-step-title" style="color:#ffffff;">Step Title</strong>
+          <div id="viva-step-desc" style="font-size:0.775rem; color:#c7d2fe; margin-top:2px;">Description</div>
+        </div>
+      </div>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <button class="btn btn-secondary" style="padding:4px 10px; font-size:0.75rem;" onclick="prevVivaStep()">◀ Back</button>
+        <button class="btn btn-primary" style="padding:4px 12px; font-size:0.75rem;" onclick="nextVivaStep()">Next Step ▶</button>
+        <button class="modal-close-btn" style="color:#c7d2fe; font-size:1.1rem; margin-left:8px;" onclick="closeVivaTour()">✕</button>
+      </div>
+    </div>
+
+    <!-- Main Views Container -->
+    <main class="main-view-container">
+
+      <!-- ========================================================
+           VIEW 1: ROLE-BASED LOGIN GATEWAY
+           ======================================================== -->
+      <section id="view-login-gateway" class="login-gateway-container">
+        <div class="login-hero-header">
+          <h1>Select Your Portal to Enter</h1>
+          <p>
+            Welcome to the Kerala State Disaster Management Relief Coordination Platform. Please choose your operational role to access your dedicated interface.
+          </p>
+        </div>
+
+        <div class="login-roles-grid">
+          
+          <!-- 1. Donor Login Card -->
+          <div class="login-role-card role-donor">
+            <div>
+              <div class="role-icon-box">🤝</div>
+              <h2 class="role-title">Public Donor Portal</h2>
+              <p class="role-desc">
+                View priority-ranked relief camp requirements, search nearby flood relief camps, pledge supplies, or route bulk consignments to LSG distribution hubs.
+              </p>
+
+              <div class="login-form-area">
+                <label class="form-label" for="login-donor-phone">Mobile Number (For Anonymous OTP):</label>
+                <input type="tel" id="login-donor-phone" class="form-control" placeholder="98470XXXXX" value="9847012345">
+                
+                <button class="btn-login-submit btn-login-donor" onclick="login('donor')">
+                  <span>🚀</span> Enter as Public Donor
+                </button>
+              </div>
+            </div>
+
+            <div class="demo-login-shortcut">
+              <button class="btn-quick-demo" onclick="login('donor')">
+                ⚡ Quick 1-Click Demo Login as Donor
+              </button>
+            </div>
+          </div>
+
+          <!-- 2. Camp Officer Login Card -->
+          <div class="login-role-card role-officer">
+            <div>
+              <div class="role-icon-box">🏕️</div>
+              <h2 class="role-title">Camp Officer Portal</h2>
+              <p class="role-desc">
+                Field management for relief camps: log camp requirements via factual assessment questionnaires, scan donor delivery QR codes to satisfy needs, track in-transit items, and emergency override.
+              </p>
+
+              <div class="login-form-area">
+                <label class="form-label" for="login-officer-pen">Kerala SPARK PEN Number:</label>
+                <input type="text" id="login-officer-pen" class="form-control" placeholder="842109" value="842109" style="font-family:var(--font-mono);">
+
+                <button class="btn-login-submit btn-login-officer" onclick="login('camp_officer')">
+                  <span>🔐</span> Authenticate with SPARK PEN
+                </button>
+              </div>
+            </div>
+
+            <div class="demo-login-shortcut">
+              <button class="btn-quick-demo" onclick="login('camp_officer')">
+                ⚡ Quick 1-Click Login (Sunil Kumar - Camp #04)
+              </button>
+            </div>
+          </div>
+
+          <!-- 3. District Collector Login Card -->
+          <div class="login-role-card role-collector">
+            <div>
+              <div class="role-icon-box">🏛️</div>
+              <h2 class="role-title">District Collector Portal</h2>
+              <p class="role-desc">
+                Executive command center for Alappuzha District: monitor displaced population, review taluk damage heatmaps, digitally authorize LP inter-taluk transfers, and audit logs.
+              </p>
+
+              <div class="login-form-area">
+                <label class="form-label" for="login-collector-id">Official Executive ID:</label>
+                <input type="text" id="login-collector-id" class="form-control" placeholder="COL-AL-04" value="COL-AL-04" style="font-family:var(--font-mono);">
+
+                <button class="btn-login-submit btn-login-collector" onclick="login('collector')">
+                  <span>🛡️</span> Access District Situation Room
+                </button>
+              </div>
+            </div>
+
+            <div class="demo-login-shortcut">
+              <button class="btn-quick-demo" onclick="login('collector')">
+                ⚡ Quick 1-Click Login (District Collector)
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        <div style="text-align:center; padding:16px; background:var(--bg-surface); border-radius:var(--radius-lg); border:1px solid var(--border-subtle); color:var(--text-secondary); font-size:0.825rem;">
+          💡 <strong>Project Guide & Evaluator Note:</strong> Click any of the "Quick 1-Click Demo Login" buttons above to instantly test that role's interface, workflows, and security boundaries.
+        </div>
+      </section>
+
+      <!-- ========================================================
+           VIEW 2: PUBLIC DONOR PORTAL INTERFACE
+           ======================================================== -->
+      <section id="view-donor-portal" style="display:none;">
+        <div class="panel-header">
+          <div class="panel-title-area">
+            <h1>Public Donor & Volunteer Portal</h1>
+            <p>Targeted Resource Routing • Pledge to Specific Relief Camps or Provide Bulk Consignments to Hubs</p>
+          </div>
+          <div class="panel-action-bar">
+            <span class="badge badge-green">🛡️ KSDMA Privacy Shield: Anonymous Pledging</span>
+          </div>
+        </div>
+
+        <!-- Search & Destination Filter Bar -->
+        <div class="donor-filter-container">
+          <div class="search-bar-wrap">
+            <div class="search-input-box">
+              <span class="search-icon">🔍</span>
+              <input type="text" id="donor-search-input" class="search-input" placeholder="Search nearby camps or hubs (e.g. Edathua, Water, Chengannur, Ambalappuzha)..." oninput="handleDonorSearch()">
+            </div>
+          </div>
+
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+            <div class="destination-toggle-bar">
+              <button id="dest-btn-camps" class="dest-toggle-btn active" onclick="setDonorTargetType('camp')">
+                <span>🏕️</span> Relief Camps (Direct Physical Need)
+              </button>
+              <button id="dest-btn-hubs" class="dest-toggle-btn" onclick="setDonorTargetType('hub')">
+                <span>🏢</span> LSG Distribution Hubs (Large / Bulk Quantities)
+              </button>
+            </div>
+
+            <div style="font-size:0.775rem; color:var(--text-secondary);">
+              Showing requirements ordered strictly by <strong>Multi-Criteria Priority Score (SAW)</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- Requirements / Hubs Grid -->
+        <div id="donor-items-grid" class="donor-items-grid">
+          <!-- Populated dynamically -->
+        </div>
+      </section>
+
+      <!-- ========================================================
+           VIEW 3: CAMP OFFICER PORTAL INTERFACE
+           ======================================================== -->
+      <section id="view-camp-portal" style="display:none;">
+        <div class="panel-header">
+          <div class="panel-title-area">
+            <h1 id="camp-header-name">St. Aloysius HSS, Edathua (CAMP-04)</h1>
+            <p id="camp-officer-info">Designated Officer: Sunil Kumar (SPARK PEN: 842109) • Jurisdiction: Edathua</p>
+          </div>
+          <div class="panel-action-bar">
+            <span class="badge badge-red">Damage Tier 10 (Cut-Off)</span>
+          </div>
+        </div>
+
+        <!-- Action Deck -->
+        <div class="officer-action-deck">
+          <button class="btn btn-primary" onclick="openAddRequirementModal()">
+            <span>➕</span> Add Camp Relief Requirement (with Assessment)
+          </button>
+          <button class="btn btn-success" onclick="openCampScannerModal('KL-ED-4921', 'Drinking Water (20L Cans)', 280, 'REQ-102')">
+            <span>📷</span> Scan Incoming Donor Delivery QR Code
+          </button>
+          <button class="btn btn-danger" onclick="triggerEmergencyOverride()">
+            <span>🚨</span> Emergency Medical Override (FR-6)
+          </button>
+        </div>
+
+        <!-- Officer View Tab Switches: Active vs Already Satisfied -->
+        <div class="officer-tab-switch">
+          <button id="officer-tab-active" class="officer-tab-btn active" onclick="setOfficerActiveTab('active')">
+            <span>📋</span> Active Needs & In-Transit Deliveries
+          </button>
+          <button id="officer-tab-satisfied" class="officer-tab-btn" onclick="setOfficerActiveTab('satisfied')">
+            <span>✅</span> Already Satisfied Requirements (100% Fulfilled)
+          </button>
+        </div>
+
+        <!-- Tab 1: Active Needs & In Transit Deliveries -->
+        <div id="camp-active-table-wrap">
+          <!-- Active Requirements Table -->
+          <div class="content-card">
+            <div class="card-title-bar">
+              <h3>📦 Camp #04 Active Relief Requirements</h3>
+              <span class="badge badge-blue">Ranked by Priority</span>
+            </div>
+            <div class="data-table-wrapper">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Req ID</th>
+                    <th>Item & Sphere Category</th>
+                    <th>Requested</th>
+                    <th>Fulfillment Status</th>
+                    <th>Current State</th>
+                    <th>SAW Score</th>
+                  </tr>
+                </thead>
+                <tbody id="camp-reqs-tbody">
+                  <!-- Dynamically populated -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- In-Transit Donor Deliveries -->
+          <div class="content-card" style="border:1px solid rgba(59, 130, 246, 0.4); background:linear-gradient(180deg, rgba(37, 99, 235, 0.05) 0%, var(--bg-surface) 100%);">
+            <div class="card-title-bar">
+              <h3>🚚 In-Transit Pledged Deliveries Awaiting Arrival at Camp #04</h3>
+              <span class="badge badge-amber">En Route</span>
+            </div>
+            <p style="font-size:0.775rem; color:var(--text-secondary); margin-bottom:14px;">
+              Donors who have generated a designated delivery pass for Camp #04. When they arrive at the camp, click <strong>"Scan & Accept"</strong> to scan their QR code.
+            </p>
+            <div class="data-table-wrapper">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Pass PIN</th>
+                    <th>Cargo Description</th>
+                    <th>Transit Status</th>
+                    <th>Pledged Time</th>
+                    <th>Officer Action</th>
+                  </tr>
+                </thead>
+                <tbody id="camp-transit-tbody">
+                  <!-- Dynamically populated -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 2: Already Satisfied Requirements -->
+        <div id="camp-satisfied-table-wrap" style="display:none;">
+          <div class="content-card" style="border:1px solid rgba(16, 185, 129, 0.4);">
+            <div class="card-title-bar">
+              <h3>✅ Successfully Satisfied & Fulfilled Requirements</h3>
+              <span class="badge badge-green">100% Completed</span>
+            </div>
+            <div class="data-table-wrapper">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Req ID</th>
+                    <th>Item & Category</th>
+                    <th>Total Fulfilled</th>
+                    <th>Satisfaction Status</th>
+                    <th>Verification Audit</th>
+                  </tr>
+                </thead>
+                <tbody id="camp-satisfied-tbody">
+                  <!-- Dynamically populated -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ========================================================
+           VIEW 4: DISTRICT COLLECTOR EXECUTIVE PORTAL
+           ======================================================== -->
+      <section id="view-collector-portal" style="display:none;">
+        <div class="panel-header">
+          <div class="panel-title-area">
+            <h1>Statewide & District Collector Executive Dashboard</h1>
+            <p>Alappuzha Emergency Operations Center • Strategic Coordination & Redistribution</p>
+          </div>
+          <div class="panel-action-bar">
+            <span class="badge badge-red">Red Alert (Level 3)</span>
+          </div>
+        </div>
+
+        <!-- KPIs -->
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:16px; margin-bottom:24px;">
+          <div class="content-card" style="border-top:3px solid var(--status-critical);">
+            <div style="font-size:0.775rem; color:var(--text-secondary); text-transform:uppercase; font-weight:700;">Displaced Persons</div>
+            <div style="font-family:var(--font-heading); font-size:1.85rem; font-weight:800; margin:6px 0;">42,850</div>
+            <div style="font-size:0.725rem; color:#fca5a5;">+1,420 registered in last 6h</div>
+          </div>
+          <div class="content-card" style="border-top:3px solid var(--gov-blue-light);">
+            <div style="font-size:0.775rem; color:var(--text-secondary); text-transform:uppercase; font-weight:700;">Active Relief Camps</div>
+            <div style="font-family:var(--font-heading); font-size:1.85rem; font-weight:800; margin:6px 0;">64</div>
+            <div style="font-size:0.725rem; color:#93c5fd;">Across 6 Taluks</div>
+          </div>
+          <div class="content-card" style="border-top:3px solid var(--status-emerald);">
+            <div style="font-size:0.775rem; color:var(--text-secondary); text-transform:uppercase; font-weight:700;">Operational LSG Hubs</div>
+            <div style="font-family:var(--font-heading); font-size:1.85rem; font-weight:800; margin:6px 0;">12</div>
+            <div style="font-size:0.725rem; color:#6ee7b7;">3 Central, 9 Panchayat Hubs</div>
+          </div>
+          <div class="content-card" style="border-top:3px solid var(--status-warning);">
+            <div style="font-size:0.775rem; color:var(--text-secondary); text-transform:uppercase; font-weight:700;">Critical Shortages</div>
+            <div style="font-family:var(--font-heading); font-size:1.85rem; font-weight:800; margin:6px 0;">2</div>
+            <div style="font-size:0.725rem; color:#fcd34d;">Insulin & Blankets</div>
+          </div>
+        </div>
+
+        <!-- Master Prioritized Requirements Table -->
+        <div class="content-card">
+          <div class="card-title-bar">
+            <h3>⚡ Statewide Dynamic Priority Queue (SAW Multi-Criteria Ranks)</h3>
+            <span class="badge badge-purple">Real-time MCDM</span>
+          </div>
+          <div class="data-table-wrapper">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Req ID</th>
+                  <th>Item & Sphere Category</th>
+                  <th>Camp Location</th>
+                  <th>Quantity</th>
+                  <th>SAW Priority Score</th>
+                  <th>Lifecycle State</th>
+                </tr>
+              </thead>
+              <tbody id="collector-req-table">
+                <!-- Populated dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Audit Trail -->
+        <div class="content-card">
+          <div class="card-title-bar">
+            <h3>📜 Live System Audit Trail & SPARK Verification Logs</h3>
+            <span class="badge badge-green">Cryptographically Signed</span>
+          </div>
+          <div class="data-table-wrapper">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Timestamp</th>
+                  <th>Authorized Officer / Entity</th>
+                  <th>Event Description</th>
+                  <th>Transaction Details</th>
+                </tr>
+              </thead>
+              <tbody id="audit-log-tbody">
+                <!-- Populated dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- ========================================================
+         MODALS (Questionnaire, Scanner, Pledge, Pass, Siren)
+         ======================================================== -->
+
+    <!-- Modal 1: Add Requirement Assessment Questionnaire (FR-4) -->
+    <div id="add-req-modal" class="modal-overlay">
+      <div class="modal-content" style="max-width:720px;">
+        <div class="modal-header">
+          <h3>📝 Log Camp Relief Requirement (Operational Assessment)</h3>
+          <button class="modal-close-btn" onclick="closeModal('add-req-modal')">✕</button>
+        </div>
+        <div class="modal-body">
+          <p style="font-size:0.8rem; color:var(--text-secondary); margin-bottom:16px;">
+            To ensure objective priority ranking under KSDMA Rule FR-4, please answer the 4 operational assessment questions regarding Camp #04:
+          </p>
+
+          <!-- Question 1 -->
+          <div class="assessment-step">
+            <div class="assessment-q-num">Question 1 of 4 • Ground Access Severity</div>
+            <div class="assessment-q-title">What is the current road access condition to Camp #04?</div>
+            <div class="assessment-options-grid">
+              <label class="assessment-radio-label">
+                <input type="radio" name="q-road" value="cut_off" checked>
+                <span>🔴 Completely Cut-off by Flood Water (Accessible only by Rescue Boats)</span>
+              </label>
+              <label class="assessment-radio-label">
+                <input type="radio" name="q-road" value="waterlogged">
+                <span>🟠 Waterlogged / Submerged (Accessible only by Heavy Military Trucks)</span>
+              </label>
+              <label class="assessment-radio-label">
+                <input type="radio" name="q-road" value="accessible">
+                <span>🟢 Fully Accessible by Standard Road Vehicles</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Question 2 -->
+          <div class="assessment-step">
+            <div class="assessment-q-num">Question 2 of 4 • Vulnerability Impact</div>
+            <div class="assessment-q-title">Which vulnerable group is most critically impacted by this required item?</div>
+            <div class="assessment-options-grid">
+              <label class="assessment-radio-label">
+                <input type="radio" name="q-vuln" value="elderly" checked>
+                <span>👴 Elderly Citizens (> 60 years) & Bedridden Patients</span>
+              </label>
+              <label class="assessment-radio-label">
+                <input type="radio" name="q-vuln" value="infants">
+                <span>👶 Infants, Toddlers (< 5 years) & Pregnant / Lactating Mothers</span>
+              </label>
+              <label class="assessment-radio-label">
+                <input type="radio" name="q-vuln" value="general">
+                <span>👥 General Evacuee Population</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Question 3 -->
+          <div class="assessment-step">
+            <div class="assessment-q-num">Question 3 of 4 • On-site Stock Depletion</div>
+            <div class="assessment-q-title">How many hours of current on-site reserve remain for this item?</div>
+            <div class="assessment-options-grid">
+              <label class="assessment-radio-label">
+                <input type="radio" name="q-reserve" value="0" checked>
+                <span>🚨 ZERO RESERVE (Complete Stockout - Immediate Physical Shortage)</span>
+              </label>
+              <label class="assessment-radio-label">
+                <input type="radio" name="q-reserve" value="6">
+                <span>⚠️ Less than 6 Hours Supply Remaining</span>
+              </label>
+              <label class="assessment-radio-label">
+                <input type="radio" name="q-reserve" value="24">
+                <span>⏳ 6 to 24 Hours Supply Remaining</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Question 4 -->
+          <div class="assessment-step">
+            <div class="assessment-q-num">Question 4 of 4 • Utilities & Water Safety</div>
+            <div class="assessment-q-title">What is the status of power and drinking water supply at the camp?</div>
+            <div class="assessment-options-grid">
+              <label class="assessment-radio-label">
+                <input type="radio" name="q-power" value="contaminated" checked>
+                <span>🚱 Local Well / Supply Contaminated with Floodwater + Total Power Outage</span>
+              </label>
+              <label class="assessment-radio-label">
+                <input type="radio" name="q-power" value="limited">
+                <span>⚡ Generator Backup Active with Limited Stored Water</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Item Selection -->
+          <div style="background:var(--bg-surface-elevated); padding:16px; border-radius:var(--radius-md); border:1px solid var(--border-subtle);">
+            <h4 style="font-size:0.9rem; color:#93c5fd; margin-bottom:12px;">Select Resource Item to Request:</h4>
+            
+            <div class="form-group">
+              <label class="form-label" for="new-req-item">Relief Item Catalog (Sphere Standard):</label>
+              <select id="new-req-item" class="form-control">
+                <option value="WAT-CAN">Drinking Water (20L Cans) - Sphere Vitality: 10/10</option>
+                <option value="FOD-KIT">Standard Dry Food Ration Kits - Sphere Vitality: 8/10</option>
+                <option value="INF-MILK">Infant Formula Powder (Stage 1) - Sphere Vitality: 9/10</option>
+                <option value="SHL-BLNK">Woolen Relief Blankets - Sphere Vitality: 7/10</option>
+                <option value="MED-INS">Insulin Vials (Cold Chain) - Sphere Vitality: 10/10</option>
+              </select>
+            </div>
+
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label class="form-label" for="new-req-qty">Quantity Needed:</label>
+                <input type="number" id="new-req-qty" class="form-control" value="250" min="1">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="new-req-unit">Unit Measurement:</label>
+                <input type="text" id="new-req-unit" class="form-control" value="cans" readonly>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" onclick="closeModal('add-req-modal')">Cancel</button>
+          <button class="btn btn-primary" onclick="submitRequirementWithAssessment()">
+            <span>📝</span> Submit & Calculate SAW Priority
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal 2: Camp Optical QR Scanner -->
+    <div id="camp-scanner-modal" class="modal-overlay">
+      <div class="modal-content" style="border:2px solid var(--gov-blue-light);">
+        <div class="modal-header" style="background:#0a2540;">
+          <h3>📷 Optical Delivery Scanner (Camp Officer Verifier)</h3>
+          <button class="modal-close-btn" onclick="closeModal('camp-scanner-modal')">✕</button>
+        </div>
+        <div class="modal-body">
+          <div style="background:var(--bg-surface-elevated); padding:12px; border-radius:var(--radius-md); margin-bottom:14px; border:1px solid var(--border-subtle);">
+            <div id="camp-scanner-station-text" style="font-weight:700; color:#38bdf8; font-size:0.875rem;">Active Station: St. Aloysius HSS, Edathua (CAMP-04)</div>
+            <div id="camp-scanner-officer-text" style="font-size:0.775rem; color:var(--text-secondary); margin-top:2px;">Designated Verifier: Sunil Kumar (SPARK PEN: 842109)</div>
+          </div>
+
+          <div class="qr-scanner-container">
+            <div class="camera-feed-mock">
+              <div class="scanner-reticle">
+                <div class="scanner-laser"></div>
+              </div>
+              <div style="margin-top:14px; font-size:0.775rem; color:#93c5fd;">Align Donor's QR Code inside brackets</div>
+            </div>
+          </div>
+
+          <div style="margin-top:18px;">
+            <h4 style="font-size:0.825rem; color:var(--text-secondary); margin-bottom:8px;">Live Camera Detection Simulator:</h4>
+            <div style="display:flex; flex-direction:column; gap:8px;">
+              <button class="btn btn-success" onclick="verifyCampDeliveryScan(true)">
+                <span>🎯</span> Scan Valid Camp #04 Donor Pass (PIN: KL-ED-4921)
+              </button>
+              <button class="btn btn-danger" style="font-size:0.775rem;" onclick="verifyCampDeliveryScan(false)">
+                <span>🚫</span> Test Scan WRONG Camp Pass (PIN: KL-CHG-9912 - Locked to Chengannur)
+              </button>
+            </div>
+
+            <div style="margin-top:14px; border-top:1px solid var(--border-subtle); padding-top:12px;">
+              <label class="form-label" for="camp-scanner-pin-input">Manual Alphanumeric PIN Fallback:</label>
+              <div style="display:flex; gap:8px;">
+                <input type="text" id="camp-scanner-pin-input" class="form-control" placeholder="KL-ED-4921" style="font-family:var(--font-mono); text-transform:uppercase;">
+                <button class="btn btn-primary" onclick="processCampManualPin()">Verify PIN</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal 3: Celebratory Requirement Satisfied Modal -->
+    <div id="verification-success-modal" class="modal-overlay">
+      <div class="modal-content" style="border:2px solid var(--status-emerald);">
+        <div class="modal-header" style="background:#064e3b;">
+          <h3 style="color:#6ee7b7;">✅ DELIVERY ACCEPTED & REQUIREMENT SATISFIED</h3>
+          <button class="modal-close-btn" onclick="closeModal('verification-success-modal')">✕</button>
+        </div>
+        <div class="modal-body" id="success-modal-details">
+          <!-- Populated dynamically -->
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-success" onclick="closeModal('verification-success-modal')">Done, Return to Dashboard</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal 4: Donor Pledge Modal -->
+    <div id="donor-pledge-modal" class="modal-overlay">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>🤝 Pledge Resources to Relief Camp</h3>
+          <button class="modal-close-btn" onclick="closeModal('donor-pledge-modal')">✕</button>
+        </div>
+        <div class="modal-body">
+          <div style="margin-bottom:16px; background:var(--bg-surface-elevated); padding:14px; border-radius:var(--radius-md); border:1px solid var(--border-subtle);">
+            <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase;">Pledging For:</div>
+            <div id="pledge-item-name" style="font-size:1.2rem; font-weight:800; color:#f8fafc; margin-bottom:6px;">Item Name</div>
+            <div id="pledge-target-info" style="font-size:0.8125rem; color:#93c5fd; line-height:1.5;">Target Camp Details</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="pledge-qty-input">Quantity You Wish to Pledge (<span id="pledge-unit-label">units</span>):</label>
+            <input type="number" id="pledge-qty-input" class="form-control" value="280" min="1">
+          </div>
+
+          <div style="background:rgba(16, 185, 129, 0.1); border:1px solid var(--status-emerald); border-radius:var(--radius-md); padding:12px; font-size:0.775rem; color:#a7f3d0;">
+            🛡️ <strong>KSDMA Privacy Assurance:</strong> Your personal identity and phone number are never exposed publicly. A designated QR pass will be generated specifically for the camp's authorized officer.
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" onclick="closeModal('donor-pledge-modal')">Cancel</button>
+          <button class="btn btn-success" onclick="submitDonorPledge()">
+            <span>🎟️</span> Confirm Pledge & Generate QR Pass
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal 5: Official Camp Delivery Pass Modal -->
+    <div id="donor-receipt-modal" class="modal-overlay">
+      <div class="modal-content" style="border:2px solid #38bdf8;">
+        <div class="modal-header" style="background:#0a2540;">
+          <h3 style="color:#bae6fd;">🎟️ Official Designated Camp Delivery Pass</h3>
+          <button class="modal-close-btn" onclick="closeModal('donor-receipt-modal')">✕</button>
+        </div>
+        <div class="modal-body" style="text-align:center;">
+          <div id="donor-receipt-qr-container" style="display:inline-block; margin-bottom:12px;">
+            <!-- SVG QR code inserted here -->
+          </div>
+          <div style="font-size:0.8125rem; color:var(--text-muted);">Alphanumeric Backup Pass Code:</div>
+          <div id="donor-receipt-code" style="font-family:var(--font-mono); font-size:1.85rem; font-weight:800; color:#38bdf8; letter-spacing:0.15em; margin:4px 0 14px 0;">
+            KL-ED-4921
+          </div>
+          <div id="donor-receipt-details">
+            <!-- Details inserted here -->
+          </div>
+        </div>
+        <div class="modal-footer" style="display:flex; justify-content:space-between; align-items:center;">
+          <button class="btn btn-secondary" onclick="window.print()">🖨️ Print Pass</button>
+          <button class="btn btn-primary" onclick="closeModal('donor-receipt-modal')">Close Pass</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal 6: Hub Bulk Consignment Modal -->
+    <div id="hub-pledge-modal" class="modal-overlay">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>📦 Schedule Large Consignment Delivery to Hub</h3>
+          <button class="modal-close-btn" onclick="closeModal('hub-pledge-modal')">✕</button>
+        </div>
+        <div class="modal-body">
+          <div style="background:var(--bg-surface-elevated); padding:14px; border-radius:var(--radius-md); margin-bottom:14px; border:1px solid var(--border-subtle);">
+            <div id="hub-pledge-title" style="font-size:1.1rem; font-weight:700; color:#ffffff;">Ambalappuzha Municipality LSG Distribution Hub</div>
+            <div id="hub-coordinator-name" style="font-size:0.775rem; color:var(--text-secondary); margin-top:2px;">Coordinator: Mathew Joseph (SPARK PEN: 512903)</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="hub-bulk-item">Consignment Category:</label>
+            <select id="hub-bulk-item" class="form-control">
+              <option>Palletized Bottled Drinking Water (500+ Cans)</option>
+              <option>Bulk Dry Food Ration Kits (200+ Kits)</option>
+              <option>Tarpaulins & Heavy Shelter Materials</option>
+              <option>Pharmaceutical & Hospital Medical Supplies</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="hub-bulk-vehicle">Delivery Vehicle Type:</label>
+            <select id="hub-bulk-vehicle" class="form-control">
+              <option>Commercial Heavy Truck (10-Ton)</option>
+              <option>Pickup Truck / Tempo / Van</option>
+              <option>Multiple Passenger Vehicles</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" onclick="closeModal('hub-pledge-modal')">Cancel</button>
+          <button class="btn btn-primary" onclick="submitHubBulkPledge()">Generate Hub Dock Pass</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal 7: Emergency Siren Modal -->
+    <div id="emergency-siren-modal" class="modal-overlay">
+      <div class="modal-content" style="border:2px solid var(--status-critical);">
+        <div class="modal-header" style="background:#450a0a;">
+          <h3 style="color:#fca5a5;">🚨 CRITICAL EMERGENCY OVERRIDE ACTIVATED</h3>
+          <button class="modal-close-btn" onclick="closeModal('emergency-siren-modal')">✕</button>
+        </div>
+        <div class="modal-body">
+          <div style="display:flex; align-items:center; gap:16px; margin-bottom:16px;">
+            <div class="emergency-siren-icon">⚠️</div>
+            <div>
+              <h4 style="color:var(--status-critical); font-size:1.15rem; font-family:var(--font-heading);">GLOBAL PRIORITY RANK 1 ENGAGED</h4>
+              <p style="font-size:0.8125rem; color:#fecaca;">Bypassing SAW scoring algorithm under FR-6 life-saving medical emergency protocol.</p>
+            </div>
+          </div>
+          <div id="emergency-siren-text" style="background:var(--bg-surface-elevated); padding:16px; border-radius:var(--radius-md); font-size:0.875rem; line-height:1.8;">
+            <!-- Content filled by triggerEmergencyOverride -->
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-danger" onclick="closeModal('emergency-siren-modal')">Acknowledge Alert</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

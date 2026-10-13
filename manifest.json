@@ -1,0 +1,16 @@
+{
+  "name": "KSDMA Disaster Relief Resource Allocation & Distribution System",
+  "short_name": "DisasterRelief-PWA",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0b0f19",
+  "theme_color": "#1e40af",
+  "description": "A Priority-Based Disaster Relief Resource Allocation & Distribution System for Kerala State Disaster Management Authority (KSDMA).",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='48' fill='%231e40af'/><path d='M50 20 L75 75 L50 62 L25 75 Z' fill='%2360a5fa'/><circle cx='50' cy='45' r='8' fill='%23ffffff'/></svg>",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}
