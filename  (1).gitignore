@@ -1,0 +1,19 @@
+# Python virtual environment
+venv/
+env/
+ENV/
+
+# Environment variables and secrets
+.env
+
+# Byte-compiled / optimized files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Pytest cache
+.pytest_cache/
+
+# OS specific files
+.DS_Store
+Thumbs.db
