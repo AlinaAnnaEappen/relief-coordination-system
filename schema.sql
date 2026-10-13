@@ -54,14 +54,13 @@ CREATE TABLE items (
   item_id            SERIAL PRIMARY KEY,
   item_code          TEXT NOT NULL UNIQUE,
   name               TEXT NOT NULL,
-  group_code         TEXT NOT NULL CHECK (group_code IN ('FW','CB','SH','MF','KU','SU','SG','CA','SS','WI','PR','LV','RC','TL')),
-  group_kind         TEXT NOT NULL CHECK (group_kind IN ('core','extended')),
+  category           TEXT NOT NULL CHECK (category IN ('FW','CB','SH','MF','KU','SU','SG')),
   unit               TEXT NOT NULL,
-  item_type          TEXT NOT NULL CHECK (item_type IN ('Consumable','Durable','Infrastructure','Service')),
-  perishable         TEXT NOT NULL DEFAULT 'No' CHECK (perishable IN ('No','Yes','Semi')),
-  requires_approval  TEXT NOT NULL DEFAULT 'No' CHECK (requires_approval IN ('No','Yes')),
-  emergency_eligible BOOLEAN NOT NULL DEFAULT FALSE,
-  notes              TEXT,
+  perishable         BOOLEAN NOT NULL DEFAULT FALSE,
+  requires_approval  BOOLEAN NOT NULL DEFAULT FALSE,
+  emergency_eligible BOOLEAN,          -- NULL = to be confirmed with DDMA
+  acceptance_rule    TEXT,             -- e.g. 'No bread'
+  norm_note          TEXT,             -- only when we have a cited source
   active             BOOLEAN NOT NULL DEFAULT TRUE
 );
 
