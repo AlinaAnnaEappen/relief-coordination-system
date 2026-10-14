@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="allocations-container" style="max-width: 1040px; margin: 0 auto; padding: 1.5rem 1rem; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+  
+  {# Top Navigation #}
+  <div style="margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center;">
+    <a href="/camps" style="color: #2563eb; text-decoration: none; font-size: 0.95rem; font-weight: 500;">
+      &larr; Back to Camps List
+    </a>
+    <div style="font-size: 0.85rem; color: #64748b;">
+      Camp ID: <strong>#{{ camp.camp_id }}</strong>
+    </div>
+  </div>
+
+  {# Page Header #}
+  <div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 1.25rem;">
+    <div>
+      <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.35rem;">
+        <h2 style="margin: 0; color: #0f172a; font-size: 1.65rem;">{{ camp.name }}</h2>
+        <span class="badge" style="background: #e2e8f0; color: #334155; padding: 0.25rem 0.6rem; border-radius: 4px; font-size: 0.8em; font-weight: 600;">
+          {{ camp.district }}
+        </span>
+        {% if camp.status == 'active' %}
+          <span class="badge" style="background: #dcfce7; color: #166534; padding: 0.25rem 0.6rem; border-radius: 4px; font-size: 0.8em; font-weight: 600;">Active</span>
+        {% else %}
+          <span class="badge" style="background: #fee2e2; color: #991b1b; padding: 0.25rem 0.6rem; border-radius: 4px; font-size: 0.8em; font-weight: 600;">Closed</span>
+        {% endif %}
+      </div>
+      <p style="margin: 0; color: #475569; font-size: 1rem;">
+        Incoming Relief Allocations &amp; Dispatched Supplies (What is coming)
+      </p>
+    </div>
+
+    {# Quick Actions #}
+    <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+      <a href="/camps/{{ camp.camp_id }}/update" style="display: inline-block; background: #ffffff; color: #334155; border: 1px solid #cbd5e1; padding: 0.5rem 0.9rem; border-radius: 6px; font-weight: 600; text-decoration: none; font-size: 0.9rem;">
+        Update Camp
+      </a>
+      <a href="/requests/new" style="display: inline-block; background: #2563eb; color: #ffffff; padding: 0.5rem 1rem; border-radius: 6px; font-weight: 600; text-decoration: none; font-size: 0.9rem;">
+        + Submit Request
+      </a>
+    </div>
+  </div>
+
+  {# Summary Metrics Cards #}
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1.1rem 1.25rem; box-shadow: 0 1px 2px rgba(0,0,0,0.04);">
+      <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; font-weight: 600;">Total Allocated Items</div>
+      <div style="font-size: 1.85rem; font-weight: 700; color: #0f172a; margin-top: 0.35rem;">
+        {{ allocations | length }}
+      </div>
+      <div style="font-size: 0.8rem; color: #94a3b8; margin-top: 0.2rem;">All supply consignments</div>
+    </div>
+
+    <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 1.1rem 1.25rem; box-shadow: 0 1px 2px rgba(0,0,0,0.04);">
+      <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: #1e40af; font-weight: 600;">Dispatched / In Transit</div>
+      <div style="font-size: 1.85rem; font-weight: 700; color: #1d4ed8; margin-top: 0.35rem;">
+        {{ allocations | selectattr('allocation_status', 'equalto', 'dispatched') | list | length }}
+      </div>
+      <div style="font-size: 0.8rem; color: #3b82f6; margin-top: 0.2rem;">En route from hubs</div>
+    </div>
+
+    <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 1.1rem 1.25rem; box-shadow: 0 1px 2px rgba(0,0,0,0.04);">
+      <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: #166534; font-weight: 600;">Delivered Supplies</div>
+      <div style="font-size: 1.85rem; font-weight: 700; color: #15803d; margin-top: 0.35rem;">
+        {{ allocations | selectattr('allocation_status', 'equalto', 'delivered') | list | length }}
+      </div>
+      <div style="font-size: 0.8rem; color: #22c55e; margin-top: 0.2rem;">Received at this camp</div>
+    </div>
+  </div>
+
+  {# Allocations Table #}
+  <div>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+      <h3 style="margin: 0; color: #0f172a; font-size: 1.2rem;">Incoming Supplies List</h3>
+      <span style="font-size: 0.85rem; color: #64748b;">
+        Updated live from relief hubs
+      </span>
+    </div>
+
+    {% if allocations %}
+      <div style="overflow-x: auto; border: 1px solid #e2e8f0; border-radius: 8px; background: #ffffff; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+        <table style="width: 100%; border-collapse: collapse; font-size: 0.92rem; text-align: left;">
+          <thead>
+            <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0; color: #475569;">
+              <th style="padding: 0.75rem 1rem;">Code</th>
+              <th style="padding: 0.75rem 1rem;">Item Name</th>
+              <th style="padding: 0.75rem 1rem; text-align: right;">Quantity</th>
+              <th style="padding: 0.75rem 1rem;">From Hub</th>
+              <th style="padding: 0.75rem 1rem;">Status</th>
+              <th style="padding: 0.75rem 1rem;">Allocated Time</th>
+              <th style="padding: 0.75rem 1rem; text-align: center;">Request</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in allocations %}
+              <tr style="border-bottom: 1px solid #f1f5f9; transition: background-color 0.15s ease;">
+                {# Item Code & Group #}
+                <td style="padding: 0.75rem 1rem; font-family: monospace; font-weight: 600; color: #334155;">
+                  {{ item.item_code }}
+                </td>
+
+                {# Item Name + Emergency flag #}
+                <td style="padding: 0.75rem 1rem;">
+                  <strong style="color: #0f172a;">{{ item.item_name }}</strong>
+                  {% if item.emergency_eligible %}
+                    <span style="background: #fee2e2; color: #b91c1c; font-size: 0.75em; padding: 0.15rem 0.4rem; border-radius: 4px; margin-left: 0.35rem; font-weight: 600;">
+                      Emergency
+                    </span>
+                  {% endif %}
+                  <span style="font-size: 0.8em; color: #64748b; margin-left: 0.35rem;">
+                    ({{ item.group_code }})
+                  </span>
+                </td>
+
+                {# Quantity & Unit #}
+                <td style="padding: 0.75rem 1rem; text-align: right; font-weight: 700; color: #0f172a;">
+                  {{ item.qty }} <span style="font-weight: 400; color: #64748b; font-size: 0.85em;">{{ item.unit }}</span>
+                </td>
+
+                {# Source Hub #}
+                <td style="padding: 0.75rem 1rem; color: #334155;">
+                  <div><strong>{{ item.hub_name }}</strong></div>
+                  <div style="font-size: 0.78rem; color: #64748b;">{{ item.hub_district }}</div>
+                </td>
+
+                {# Allocation Status Badge #}
+                <td style="padding: 0.75rem 1rem;">
+                  {% if item.allocation_status == 'dispatched' %}
+                    <span style="background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; padding: 0.25rem 0.6rem; border-radius: 9999px; font-size: 0.78rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.3rem;">
+                      <span style="width: 6px; height: 6px; background: #2563eb; border-radius: 50%;"></span>
+                      Dispatched
+                    </span>
+                  {% elif item.allocation_status == 'delivered' %}
+                    <span style="background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; padding: 0.25rem 0.6rem; border-radius: 9999px; font-size: 0.78rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.3rem;">
+                      <span style="width: 6px; height: 6px; background: #16a34a; border-radius: 50%;"></span>
+                      Delivered
+                    </span>
+                  {% elif item.allocation_status == 'planned' %}
+                    <span style="background: #fefce8; color: #a16207; border: 1px solid #fef08a; padding: 0.25rem 0.6rem; border-radius: 9999px; font-size: 0.78rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.3rem;">
+                      <span style="width: 6px; height: 6px; background: #eab308; border-radius: 50%;"></span>
+                      Planned
+                    </span>
+                  {% else %}
+                    <span style="background: #f1f5f9; color: #64748b; padding: 0.25rem 0.6rem; border-radius: 9999px; font-size: 0.78rem; font-weight: 600;">
+                      {{ item.allocation_status }}
+                    </span>
+                  {% endif %}
+                </td>
+
+                {# Allocated Timestamp #}
+                <td style="padding: 0.75rem 1rem; color: #475569; font-size: 0.85rem;">
+                  {{ item.allocated_at.strftime('%Y-%m-%d %H:%M') if item.allocated_at and item.allocated_at.strftime is defined else item.allocated_at }}
+                </td>
+
+                {# Linked Request Link #}
+                <td style="padding: 0.75rem 1rem; text-align: center;">
+                  {% if item.request_id %}
+                    <a href="/requests/{{ item.request_id }}" style="color: #2563eb; text-decoration: none; font-weight: 600; font-size: 0.85rem;">
+                      #{{ item.request_id }}
+                    </a>
+                  {% else %}
+                    <span style="color: #94a3b8; font-size: 0.85rem;">&mdash;</span>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div style="background: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 8px; padding: 2.5rem 1.5rem; text-align: center; color: #64748b;">
+        <div style="font-size: 2rem; margin-bottom: 0.5rem;">📦</div>
+        <h4 style="margin: 0 0 0.5rem 0; color: #1e293b; font-size: 1.15rem;">No Supplies In Transit Yet</h4>
+        <p style="margin: 0 auto 1.25rem auto; max-width: 520px; font-size: 0.95rem; line-height: 1.5;">
+          There are currently no items allocated or dispatched to this camp. Once the district coordinator runs the allocation engine, all assigned supplies will appear here with delivery tracking.
+        </p>
+        <a href="/requests/new" style="display: inline-block; background: #2563eb; color: #ffffff; padding: 0.5rem 1.25rem; border-radius: 6px; font-weight: 600; text-decoration: none; font-size: 0.9rem;">
+          Submit a Request for Supplies
+        </a>
+      </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

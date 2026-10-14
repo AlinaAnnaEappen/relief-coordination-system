@@ -2,9 +2,14 @@
 
 {% block content %}
 <div class="camp-form-container">
-  <div class="page-header">
-    <h2>Update Camp: {{ camp.name }}</h2>
-    <span class="badge badge-district">{{ camp.district }}</span>
+  <div class="page-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+    <div>
+      <h2 style="margin: 0 0 0.25rem 0;">Update Camp: {{ camp.name }}</h2>
+      <span class="badge badge-district">{{ camp.district }}</span>
+    </div>
+    <a href="/camps/{{ camp.camp_id }}/allocations" style="background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; font-weight: 600; padding: 0.45rem 0.9rem; border-radius: 6px; text-decoration: none; font-size: 0.9rem;">
+      &larr; View Incoming Supplies
+    </a>
   </div>
 
   {% if errors %}

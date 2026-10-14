@@ -74,8 +74,9 @@ async def list_hubs(
         return JSONResponse(content=jsonable_encoder(serialized_hubs))
 
     return templates.TemplateResponse(
-        "hub_list.html",
-        {
+        request=request,
+        name="hub_list.html",
+        context={
             "request": request,
             "hubs": serialized_hubs,
             "user": user,
@@ -117,8 +118,9 @@ async def create_hub(
 
     if errors:
         return templates.TemplateResponse(
-            "hub_list.html",
-            {
+            request=request,
+            name="hub_list.html",
+            context={
                 "request": request,
                 "hubs": [],
                 "user": user,

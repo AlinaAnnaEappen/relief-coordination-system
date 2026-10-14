@@ -171,8 +171,9 @@ async def get_stock(
         return JSONResponse(content=jsonable_encoder(stock_items))
 
     return templates.TemplateResponse(
-        "hub_dashboard.html",
-        {
+        request=request,
+        name="hub_dashboard.html",
+        context={
             "request": request,
             "hub": current_hub,
             "all_hubs": all_hubs,

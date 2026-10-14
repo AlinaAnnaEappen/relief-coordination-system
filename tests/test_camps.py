@@ -31,7 +31,11 @@ if "deps" not in sys.modules:
     mock_deps.require_role = lambda *roles: (lambda: {"role": "admin"})
     sys.modules["deps"] = mock_deps
 
-from routers.camps_router import _validate_and_save_camp_update
+import asyncio
+from routers.camps_router import (
+    _validate_and_save_camp_update,
+    get_camp_allocations,
+)
 
 
 class TestCampUpdates(unittest.TestCase):
@@ -217,5 +221,104 @@ class TestCampUpdates(unittest.TestCase):
         self.assertNotIn("status = %s", executed_query)
 
 
+class TestCampAllocations(unittest.TestCase):
+    """Test suite for Task B4: What is coming (Camp Allocations & Supplies)."""
+
+    def _get_sample_camp(self, camp_id=1):
+        return {
+            "camp_id": camp_id,
+            "name": "St. Mary HSS Camp",
+            "district": "Alappuzha",
+            "status": "active",
+            "last_supply_at": None,
+        }
+
+    def _get_sample_allocations(self):
+        return [
+            {
+                "allocation_id": 10,
+                "run_id": 1,
+                "camp_id": 1,
+                "hub_id": 1,
+                "item_id": 2,
+                "request_item_id": 5,
+                "qty": 50,
+                "allocation_status": "dispatched",
+                "allocated_at": "2026-08-15 12:00:00",
+                "item_code": "FW01",
+                "item_name": "Rice",
+                "group_code": "FW",
+                "unit": "kg",
+                "emergency_eligible": False,
+                "hub_name": "Test Hub Alappuzha",
+                "hub_district": "Alappuzha",
+                "request_id": 101,
+                "request_status": "partially_allocated",
+            }
+        ]
+
+    @patch("routers.camps_router.get_conn")
+    def test_officer_can_view_own_camp_allocations(self, mock_get_conn):
+        """Camp officer can view allocations for their assigned camp."""
+        mock_conn = MagicMock()
+        mock_cur = MagicMock()
+        mock_get_conn.return_value = mock_conn
+        mock_conn.cursor.return_value.__enter__.return_value = mock_cur
+        mock_cur.fetchone.return_value = self._get_sample_camp(1)
+        mock_cur.fetchall.return_value = self._get_sample_allocations()
+
+        officer_user = {"role": "camp_officer", "camp_id": 1}
+        dummy_req = MagicMock()
+
+        res = asyncio.run(
+            get_camp_allocations(camp_id=1, request=dummy_req, format="json", user=officer_user)
+        )
+        self.assertEqual(res.status_code, 200)
+
+    @patch("routers.camps_router.get_conn")
+    def test_officer_cannot_view_other_camp_allocations(self, mock_get_conn):
+        """Camp officer requesting another camp's allocations must receive 403 Forbidden."""
+        officer_user = {"role": "camp_officer", "camp_id": 1}
+        dummy_req = MagicMock()
+
+        with self.assertRaises(HTTPException) as ctx:
+            asyncio.run(
+                get_camp_allocations(camp_id=2, request=dummy_req, user=officer_user)
+            )
+        self.assertEqual(ctx.exception.status_code, 403)
+        self.assertIn("own assigned camp", ctx.exception.detail)
+
+    @patch("routers.camps_router.get_conn")
+    def test_admin_can_view_any_camp_allocations(self, mock_get_conn):
+        """Admin can view allocations for any camp."""
+        mock_conn = MagicMock()
+        mock_cur = MagicMock()
+        mock_get_conn.return_value = mock_conn
+        mock_conn.cursor.return_value.__enter__.return_value = mock_cur
+        mock_cur.fetchone.return_value = self._get_sample_camp(2)
+        mock_cur.fetchall.return_value = []
+
+        admin_user = {"role": "admin", "camp_id": None}
+        dummy_req = MagicMock()
+
+        res = asyncio.run(
+            get_camp_allocations(camp_id=2, request=dummy_req, format="json", user=admin_user)
+        )
+        self.assertEqual(res.status_code, 200)
+
+    @patch("routers.camps_router.get_conn")
+    def test_donor_forbidden_from_allocations(self, mock_get_conn):
+        """Donors must not have permission to view camp allocations (403 Forbidden)."""
+        donor_user = {"role": "donor"}
+        dummy_req = MagicMock()
+
+        with self.assertRaises(HTTPException) as ctx:
+            asyncio.run(
+                get_camp_allocations(camp_id=1, request=dummy_req, user=donor_user)
+            )
+        self.assertEqual(ctx.exception.status_code, 403)
+
+
 if __name__ == "__main__":
     unittest.main()
+

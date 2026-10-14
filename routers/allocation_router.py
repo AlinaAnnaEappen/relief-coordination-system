@@ -91,8 +91,9 @@ async def get_latest_allocation(
 
             if not run:
                 return templates.TemplateResponse(
-                    "allocation_results.html",
-                    {
+                    request=request,
+                    name="allocation_results.html",
+                    context={
                         "request": request,
                         "run": None,
                         "allocations": [],
@@ -183,8 +184,9 @@ async def get_latest_allocation(
         )
 
     return templates.TemplateResponse(
-        "allocation_results.html",
-        {
+        request=request,
+        name="allocation_results.html",
+        context={
             "request": request,
             "run": run,
             "allocations": allocations,
@@ -263,8 +265,9 @@ async def list_allocations(
 
     # Otherwise render allocation table template
     return templates.TemplateResponse(
-        "allocation_results.html",
-        {
+        request=request,
+        name="allocation_results.html",
+        context={
             "request": request,
             "run": None,
             "allocations": allocations,

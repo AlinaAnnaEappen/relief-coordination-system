@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="request-form-container" style="max-width: 960px; margin: 0 auto; padding: 1.5rem 1rem;">
+  <div class="page-header" style="margin-bottom: 1.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 1rem;">
+    <h2>Submit Relief Supply Request</h2>
+    <p style="color: #4a5568; margin-top: 0.25rem;">
+      Select the required supplies for your camp. Items with a quantity greater than zero will be included in the request.
+    </p>
+  </div>
+
+  {% if errors %}
+    <div class="error-box" style="background-color: #fff5f5; border: 1px solid #feb2b2; color: #c53030; padding: 1rem; border-radius: 6px; margin-bottom: 1.5rem;">
+      <strong>Please correct the following errors:</strong>
+      <ul style="margin: 0.5rem 0 0 1.25rem;">
+        {% for error in errors %}
+          <li>{{ error }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+
+  <form action="/requests" method="post" class="request-form" id="request-form">
+    {# Camp context #}
+    <div class="card" style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1.5rem;">
+      {% if user and user.role == 'admin' %}
+        <div class="form-group" style="margin-bottom: 0;">
+          <label for="camp_id" style="font-weight: 600; display: block; margin-bottom: 0.5rem;">Target Camp *</label>
+          <select id="camp_id" name="camp_id" required style="width: 100%; max-width: 400px; padding: 0.5rem; border: 1px solid #cbd5e1; border-radius: 4px;">
+            <option value="">-- Select Active Camp --</option>
+            {% for c in camps %}
+              <option value="{{ c.camp_id }}" {% if (selected_camp and selected_camp.camp_id == c.camp_id) or (form_state.camp_id == c.camp_id) %}selected{% endif %}>
+                {{ c.name }} ({{ c.district }})
+              </option>
+            {% endfor %}
+          </select>
+          <span style="display: block; font-size: 0.85em; color: #64748b; margin-top: 0.25rem;">Administrator: choose which active relief camp this request is filed for.</span>
+        </div>
+      {% else %}
+        <div>
+          <span style="font-size: 0.9em; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; font-weight: 600;">Submitting for Assigned Camp</span>
+          <h3 style="margin: 0.25rem 0 0 0; color: #1e293b;">
+            {{ selected_camp.name if selected_camp else "Assigned Camp" }}
+            {% if selected_camp %}
+              <span class="badge badge-district" style="font-size: 0.75em; background: #e0f2fe; color: #0369a1; padding: 0.2rem 0.5rem; border-radius: 4px; vertical-align: middle; margin-left: 0.5rem;">{{ selected_camp.district }}</span>
+            {% endif %}
+          </h3>
+          <input type="hidden" name="camp_id" value="{{ user.camp_id }}">
+        </div>
+      {% endif %}
+    </div>
+
+    {# Items Catalog Picker #}
+    <div class="items-selection-section" style="margin-bottom: 2rem;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 0.75rem;">
+        <div>
+          <h3 style="margin: 0; color: #0f172a;">Supplies Catalog (14 Official Groups)</h3>
+          <span style="font-size: 0.88em; color: #64748b;">Core groups (Food, Bedding, Sanitation, Medical, Kitchen, Shelter) are prioritized upfront.</span>
+        </div>
+      </div>
+
+      {# Group tables #}
+      {% set ns = namespace(shown_extended_divider=false) %}
+
+      {% for gcode, items in grouped_items.items() %}
+        {% if gcode in extended_codes and not ns.shown_extended_divider %}
+          <div style="margin: 2.5rem 0 1rem; border-top: 2px dashed #cbd5e1; padding-top: 1rem;">
+            <h4 style="color: #64748b; font-size: 1.05rem; letter-spacing: 0.05em; text-transform: uppercase;">
+              Extended Supply Groups
+            </h4>
+          </div>
+          {% set ns.shown_extended_divider = true %}
+        {% endif %}
+
+        <div class="group-card" style="border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 1.25rem; overflow: hidden; background: #ffffff;">
+          <div class="group-header" style="background: #f1f5f9; padding: 0.75rem 1rem; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-weight: 700; color: #1e293b;">
+              {{ gcode }} – {{ group_names.get(gcode, gcode) }}
+            </span>
+            <span style="font-size: 0.85em; color: #64748b;">
+              {{ items|length }} items
+            </span>
+          </div>
+
+          <table class="table" style="width: 100%; border-collapse: collapse; font-size: 0.95em;">
+            <thead>
+              <tr style="background: #f8fafc; border-bottom: 1px solid #e2e8f0; text-align: left; color: #475569;">
+                <th style="padding: 0.6rem 1rem; width: 12%;">Code</th>
+                <th style="padding: 0.6rem 1rem; width: 45%;">Item Name & Notes</th>
+                <th style="padding: 0.6rem 1rem; width: 15%;">Unit</th>
+                <th style="padding: 0.6rem 1rem; width: 28%; text-align: right;">Requested Qty</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for itm in items %}
+                <tr style="border-bottom: 1px solid #f1f5f9;">
+                  <td style="padding: 0.6rem 1rem; font-family: monospace; font-weight: 600; color: #334155;">
+                    {{ itm.item_code }}
+                  </td>
+                  <td style="padding: 0.6rem 1rem;">
+                    <strong>{{ itm.name }}</strong>
+                    {% if itm.emergency_eligible %}
+                      <span class="badge badge-emergency" style="background: #fee2e2; color: #b91c1c; font-size: 0.75em; padding: 0.15rem 0.4rem; border-radius: 4px; margin-left: 0.35rem; font-weight: 600;">Emergency Item</span>
+                    {% endif %}
+                    {% if itm.notes %}
+                      <div style="font-size: 0.82em; color: #64748b; margin-top: 0.15rem;">{{ itm.notes }}</div>
+                    {% endif %}
+                  </td>
+                  <td style="padding: 0.6rem 1rem; color: #475569;">
+                    {{ itm.unit }}
+                  </td>
+                  <td style="padding: 0.6rem 1rem; text-align: right;">
+                    <input type="number"
+                           id="qty_{{ itm.item_id }}"
+                           name="qty_{{ itm.item_id }}"
+                           min="0"
+                           step="1"
+                           placeholder="0"
+                           style="width: 110px; padding: 0.35rem 0.5rem; text-align: right; border: 1px solid #cbd5e1; border-radius: 4px;"
+                           aria-label="Quantity for {{ itm.name }}">
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% endfor %}
+    </div>
+
+    {# Urgency and Plain-text Comment #}
+    <div class="card" style="border: 1px solid #cbd5e1; border-radius: 8px; padding: 1.25rem; background: #fafafa; margin-bottom: 1.5rem;">
+      <h4 style="margin: 0 0 0.75rem 0; color: #0f172a;">Urgency and Camp Remarks</h4>
+
+      <div class="form-group" style="margin-bottom: 1.25rem;">
+        <label style="display: flex; align-items: center; gap: 0.5rem; font-weight: 600; cursor: pointer; color: #991b1b;">
+          <input type="checkbox" id="escalated" name="escalated" value="true" {% if form_state.escalated %}checked{% endif %} style="width: 18px; height: 18px;">
+          <span>Mark as Urgent (Escalate Request)</span>
+        </label>
+        <span style="display: block; font-size: 0.85em; color: #64748b; margin-left: 1.7rem; margin-top: 0.2rem;">
+          Flags this request as high urgency for DDMA control room triage and allocation ranking.
+        </span>
+      </div>
+
+      <div class="form-group" style="margin-bottom: 0;">
+        <label for="comment" style="font-weight: 600; display: block; margin-bottom: 0.35rem;">
+          Officer Comment (Optional, max 500 characters)
+        </label>
+        <textarea id="comment"
+                  name="comment"
+                  rows="3"
+                  maxlength="500"
+                  placeholder="Operational details, specific logistics notes, or critical remarks..."
+                  style="width: 100%; box-sizing: border-box; padding: 0.5rem; border: 1px solid #cbd5e1; border-radius: 4px; font-family: inherit;">{{ form_state.comment or '' }}</textarea>
+        <span style="display: block; font-size: 0.85em; color: #64748b; margin-top: 0.25rem;">
+          Note: This comment box is plain text for control room reading. It is <strong>not scored or analysed</strong> by the priority engine.
+        </span>
+      </div>
+    </div>
+
+    <div class="form-actions" style="display: flex; gap: 1rem; align-items: center;">
+      <button type="submit" class="btn btn-primary" style="background: #2563eb; color: #ffffff; padding: 0.65rem 1.5rem; font-weight: 600; border: none; border-radius: 6px; cursor: pointer;">
+        Submit Request
+      </button>
+      <a href="/requests" class="btn btn-secondary" style="padding: 0.65rem 1.25rem; color: #475569; text-decoration: none; border: 1px solid #cbd5e1; border-radius: 6px;">
+        Cancel
+      </a>
+    </div>
+  </form>
+</div>
+{% endblock %}

@@ -243,7 +243,14 @@ class TestMemberDRouterPermissions(unittest.TestCase):
     """
 
     def setUp(self):
+        import config
+        self.original_bypass = getattr(config, "DEV_BYPASS_LOGIN", False)
+        config.DEV_BYPASS_LOGIN = False
         self.client = TestClient(app)
+
+    def tearDown(self):
+        import config
+        config.DEV_BYPASS_LOGIN = self.original_bypass
 
     def test_health_check(self):
         resp = self.client.get("/health")
