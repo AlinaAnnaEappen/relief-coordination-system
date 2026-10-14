@@ -776,3 +776,133 @@ async def get_camp(
             "is_new": False,
         },
     )
+
+
+# ── Camp Allocations / "What is Coming" (Task B4) ──────────────────────────
+
+@router.get("/camps/{camp_id}/allocations", response_class=HTMLResponse)
+async def get_camp_allocations(
+    camp_id: int,
+    request: Request,
+    format: Optional[str] = Query(None),
+    user: dict = Depends(get_current_user),
+):
+    """
+    Retrieve incoming supplies and allocations for a camp (Task B4).
+    - Admins can view allocations for any camp.
+    - Camp officers can view allocations only for their own camp (403 otherwise).
+    - Supports ?format=json to return allocations list as JSON.
+    """
+    role = user.get("role")
+    user_camp_id = user.get("camp_id")
+
+    if role == "camp_officer":
+        if user_camp_id is None or int(user_camp_id) != camp_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Forbidden: You can only view allocations for your own assigned camp.",
+            )
+    elif role not in ("admin", "hub_coordinator"):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Forbidden: You do not have permission to view camp allocations.",
+        )
+
+    conn = get_conn()
+    try:
+        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            # 1. Fetch camp info
+            cur.execute(
+                """
+                SELECT camp_id, name, district, status, last_supply_at
+                FROM camps
+                WHERE camp_id = %s;
+                """,
+                (camp_id,),
+            )
+            camp = cur.fetchone()
+            if not camp:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail=f"Camp {camp_id} not found.",
+                )
+
+            # 2. Fetch allocations with item, hub, and request metadata
+            cur.execute(
+                """
+                SELECT 
+                    a.allocation_id,
+                    a.run_id,
+                    a.camp_id,
+                    a.hub_id,
+                    a.item_id,
+                    a.request_item_id,
+                    a.qty,
+                    a.status AS allocation_status,
+                    a.created_at AS allocated_at,
+                    i.item_code,
+                    i.name AS item_name,
+                    i.group_code,
+                    i.unit,
+                    i.emergency_eligible,
+                    h.name AS hub_name,
+                    h.district AS hub_district,
+                    r.request_id,
+                    r.status AS request_status
+                FROM allocations a
+                JOIN items i ON a.item_id = i.item_id
+                JOIN hubs h ON a.hub_id = h.hub_id
+                LEFT JOIN request_items ri ON a.request_item_id = ri.request_item_id
+                LEFT JOIN requests r ON ri.request_id = r.request_id
+                WHERE a.camp_id = %s
+                ORDER BY a.created_at DESC, a.allocation_id DESC;
+                """,
+                (camp_id,),
+            )
+            allocations = cur.fetchall()
+    finally:
+        conn.close()
+
+    if format and format.lower() == "json":
+        return JSONResponse(content=jsonable_encoder(allocations))
+
+    return templates.TemplateResponse(
+        request=request,
+        name="camp_allocations.html",
+        context={
+            "request": request,
+            "camp": camp,
+            "allocations": allocations,
+            "user": user,
+        },
+    )
+
+
+@router.get("/allocation")
+async def get_allocations_query(
+    request: Request,
+    camp_id: Optional[int] = Query(None),
+    format: Optional[str] = Query(None),
+    user: dict = Depends(get_current_user),
+):
+    """
+    Query allocations matching Guide Section 10 contract: GET /allocation?camp_id=
+    Delegates to get_camp_allocations for the specified camp.
+    """
+    target_camp_id = camp_id
+    if target_camp_id is None and user.get("role") == "camp_officer" and user.get("camp_id"):
+        target_camp_id = int(user["camp_id"])
+
+    if target_camp_id is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="camp_id parameter is required.",
+        )
+
+    return await get_camp_allocations(
+        camp_id=target_camp_id,
+        request=request,
+        format=format,
+        user=user,
+    )
+
