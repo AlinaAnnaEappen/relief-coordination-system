@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="camps-container">
+  <div class="page-header">
+    <h2>Relief Camps</h2>
+    {% if user and user.role == 'admin' %}
+      <a href="/camps/new" class="btn btn-primary">Add camp</a>
+    {% endif %}
+  </div>
+
+  {% if camps %}
+    <table class="table camp-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>District</th>
+          <th>Capacity</th>
+          <th>Occupancy</th>
+          <th>Damage Level</th>
+          <th>Access Difficulty</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for camp in camps %}
+          <tr>
+            <td>
+              <a href="/camps/{{ camp.camp_id }}">{{ camp.name }}</a>
+            </td>
+            <td>{{ camp.district }}</td>
+            <td>{{ camp.capacity if camp.capacity is not none else "—" }}</td>
+            <td>{{ camp.occupancy }}</td>
+            <td>{{ camp.damage_level }} / 5</td>
+            <td>{{ camp.access_difficulty }} / 5</td>
+            <td>
+              {% if camp.status == 'active' %}
+                <span class="badge badge-active">Active</span>
+              {% else %}
+                <span class="badge badge-closed">Closed</span>
+              {% endif %}
+            </td>
+            <td>
+              <a href="/camps/{{ camp.camp_id }}" class="btn btn-sm">View</a>
+              <a href="/camps/{{ camp.camp_id }}/update" class="btn btn-sm">Update</a>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p class="empty-state">No camps found.</p>
+  {% endif %}
+</div>
+{% endblock %}

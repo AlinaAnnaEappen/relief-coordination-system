@@ -1,9 +1,15 @@
 """
 test_priority.py (Owner: Member C)
 ==================================
+ priority-testing
 Comprehensive Unit Tests for the SAW Priority Engine (engines/priority_engine.py).
 
 Checks all mathematical contracts, edge cases, timezone safety, and performance:
+=======
+Unit tests for the SAW Priority Engine (engines/priority_engine.py).
+
+Checks all mathematical contracts and edge cases defined in Section 8 of the Guide:
+ main
 1. Section 8.4 Worked Example (Benchmark: score ≈ 73.92)
 2. Zero occupancy (no division by zero)
 3. Single camp normalization (people = 1.0)
@@ -11,6 +17,7 @@ Checks all mathematical contracts, edge cases, timezone safety, and performance:
 5. Time capping (elapsed hours capped at 72 hours)
 6. Tie-breaking rules (oldest open request date, then lower camp_id)
 7. Weight validation (raises ValueError if weights don't sum to 1.0)
+ priority-testing
 8. Missing weight key (raises ValueError explaining missing keys)
 9. Timezone handling: aware and naive inputs produce identical scores
 10. Mixed aware and naive timestamps do not crash
@@ -22,13 +29,23 @@ import unittest
 import csv
 import time
 from datetime import datetime, timedelta, timezone
+=======
+"""
+
+import unittest
+from datetime import datetime, timedelta
+ main
 import sys
 import os
 
 # Ensure project root is in sys.path
+ priority-testing
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
+=======
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+ main
 
 from engines.priority_engine import compute_priority, validate_weights, DEFAULT_SAW_WEIGHTS
 
@@ -36,9 +53,13 @@ from engines.priority_engine import compute_priority, validate_weights, DEFAULT_
 class TestPriorityEngine(unittest.TestCase):
 
     def setUp(self):
+ priority-testing
         self.now_naive = datetime(2026, 8, 15, 12, 0, 0)
         self.now_aware = datetime(2026, 8, 15, 12, 0, 0, tzinfo=timezone.utc)
         self.weights = DEFAULT_SAW_WEIGHTS
+=======
+        self.now = datetime(2026, 8, 15, 12, 0, 0)
+ main
 
     def test_worked_example_section_8_4(self):
         """
@@ -58,12 +79,21 @@ class TestPriorityEngine(unittest.TestCase):
                 "disabled_count": 20,
                 "damage_level": 4,
                 "access_difficulty": 5,
+ priority-testing
                 "last_supply_at": self.now_aware - timedelta(hours=48),
                 "created_at": self.now_aware - timedelta(hours=96),
                 "has_escalation": True,
                 "oldest_open_request_at": self.now_aware - timedelta(hours=10),
             },
             # Camp Y with max occupancy 500 to establish the denominator
+=======
+                "last_supply_at": self.now - timedelta(hours=48),
+                "created_at": self.now - timedelta(hours=96),
+                "has_escalation": True,
+                "oldest_open_request_at": self.now - timedelta(hours=10),
+            },
+            # Dummy Camp Y with max occupancy 500 to establish the denominator
+ main
             {
                 "camp_id": 2,
                 "occupancy": 500,
@@ -73,18 +103,33 @@ class TestPriorityEngine(unittest.TestCase):
                 "disabled_count": 5,
                 "damage_level": 1,
                 "access_difficulty": 1,
+ priority-testing
                 "last_supply_at": self.now_aware - timedelta(hours=2),
                 "created_at": self.now_aware - timedelta(hours=24),
+=======
+                "last_supply_at": self.now - timedelta(hours=2),
+                "created_at": self.now - timedelta(hours=24),
+ main
                 "has_escalation": False,
                 "oldest_open_request_at": None,
             },
         ]
 
+ priority-testing
         results = compute_priority(camps, weights=self.weights, now=self.now_aware, time_cap_hours=72)
         camp_x_res = next(r for r in results if r["camp_id"] == 1)
 
         self.assertAlmostEqual(camp_x_res["score"], 73.92, delta=0.05)
 
+=======
+        results = compute_priority(camps, weights=DEFAULT_SAW_WEIGHTS, now=self.now, time_cap_hours=72)
+        camp_x_res = next(r for r in results if r["camp_id"] == 1)
+
+        # Expected score is 73.92 (within 0.05 tolerance for rounding differences)
+        self.assertAlmostEqual(camp_x_res["score"], 73.92, delta=0.05)
+
+        # Verify criterion breakdown values
+ main
         breakdown = camp_x_res["breakdown"]
         self.assertAlmostEqual(breakdown["people"], 0.80, delta=0.01)       # 400 / 500
         self.assertAlmostEqual(breakdown["vulnerable"], 0.45, delta=0.01)   # 180 / 400
@@ -105,13 +150,22 @@ class TestPriorityEngine(unittest.TestCase):
                 "disabled_count": 0,
                 "damage_level": 3,
                 "access_difficulty": 3,
+ priority-testing
                 "last_supply_at": self.now_aware,
                 "created_at": self.now_aware,
+=======
+                "last_supply_at": self.now,
+                "created_at": self.now,
+ main
                 "has_escalation": False,
                 "oldest_open_request_at": None,
             }
         ]
+ priority-testing
         results = compute_priority(camps, weights=self.weights, now=self.now_aware)
+=======
+        results = compute_priority(camps, weights=DEFAULT_SAW_WEIGHTS, now=self.now)
+ main
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0]["breakdown"]["people"], 0.0)
         self.assertEqual(results[0]["breakdown"]["vulnerable"], 0.0)
@@ -128,13 +182,22 @@ class TestPriorityEngine(unittest.TestCase):
                 "disabled_count": 1,
                 "damage_level": 2,
                 "access_difficulty": 2,
+ priority-testing
                 "last_supply_at": self.now_aware,
                 "created_at": self.now_aware,
+=======
+                "last_supply_at": self.now,
+                "created_at": self.now,
+ main
                 "has_escalation": False,
                 "oldest_open_request_at": None,
             }
         ]
+ priority-testing
         results = compute_priority(camps, weights=self.weights, now=self.now_aware)
+=======
+        results = compute_priority(camps, weights=DEFAULT_SAW_WEIGHTS, now=self.now)
+ main
         self.assertEqual(results[0]["breakdown"]["people"], 1.0)
 
     def test_missing_last_supply_at_uses_created_at(self):
@@ -150,12 +213,20 @@ class TestPriorityEngine(unittest.TestCase):
                 "damage_level": 1,
                 "access_difficulty": 1,
                 "last_supply_at": None,
+ priority-testing
                 "created_at": self.now_aware - timedelta(hours=36),
+=======
+                "created_at": self.now - timedelta(hours=36),
+ main
                 "has_escalation": False,
                 "oldest_open_request_at": None,
             }
         ]
+ priority-testing
         results = compute_priority(camps, weights=self.weights, now=self.now_aware, time_cap_hours=72)
+=======
+        results = compute_priority(camps, weights=DEFAULT_SAW_WEIGHTS, now=self.now, time_cap_hours=72)
+ main
         # 36 hours elapsed / 72 hours cap = 0.5
         self.assertAlmostEqual(results[0]["breakdown"]["time"], 0.5, delta=0.01)
 
@@ -171,13 +242,22 @@ class TestPriorityEngine(unittest.TestCase):
                 "disabled_count": 0,
                 "damage_level": 1,
                 "access_difficulty": 1,
+ priority-testing
                 "last_supply_at": self.now_aware - timedelta(hours=120),  # 120h > 72h
                 "created_at": self.now_aware - timedelta(hours=200),
+=======
+                "last_supply_at": self.now - timedelta(hours=120),  # 120h > 72h
+                "created_at": self.now - timedelta(hours=200),
+ main
                 "has_escalation": False,
                 "oldest_open_request_at": None,
             }
         ]
+ priority-testing
         results = compute_priority(camps, weights=self.weights, now=self.now_aware, time_cap_hours=72)
+=======
+        results = compute_priority(camps, weights=DEFAULT_SAW_WEIGHTS, now=self.now, time_cap_hours=72)
+ main
         self.assertEqual(results[0]["breakdown"]["time"], 1.0)
 
     def test_tie_breaking(self):
@@ -195,10 +275,17 @@ class TestPriorityEngine(unittest.TestCase):
             "disabled_count": 0,
             "damage_level": 1,
             "access_difficulty": 1,
+ priority-testing
             "last_supply_at": self.now_aware,
             "created_at": self.now_aware,
             "has_escalation": False,
             "oldest_open_request_at": self.now_aware - timedelta(hours=5),  # newer
+=======
+            "last_supply_at": self.now,
+            "created_at": self.now,
+            "has_escalation": False,
+            "oldest_open_request_at": self.now - timedelta(hours=5),  # newer request
+ main
         }
         camp_b = {
             "camp_id": 20,
@@ -209,6 +296,7 @@ class TestPriorityEngine(unittest.TestCase):
             "disabled_count": 0,
             "damage_level": 1,
             "access_difficulty": 1,
+ priority-testing
             "last_supply_at": self.now_aware,
             "created_at": self.now_aware,
             "has_escalation": False,
@@ -216,13 +304,27 @@ class TestPriorityEngine(unittest.TestCase):
         }
 
         results = compute_priority([camp_a, camp_b], weights=self.weights, now=self.now_aware)
+=======
+            "last_supply_at": self.now,
+            "created_at": self.now,
+            "has_escalation": False,
+            "oldest_open_request_at": self.now - timedelta(hours=20),  # older request -> wins
+        }
+
+        results = compute_priority([camp_a, camp_b], weights=DEFAULT_SAW_WEIGHTS, now=self.now)
+        # Scores are identical, so Camp B (older request) should be Rank 1
+ main
         self.assertEqual(results[0]["camp_id"], 20)
         self.assertEqual(results[0]["rank"], 1)
         self.assertEqual(results[1]["camp_id"], 10)
         self.assertEqual(results[1]["rank"], 2)
 
     def test_weights_validation_error(self):
+ priority-testing
         """Weights must sum to 1.00; invalid sum must raise ValueError."""
+=======
+        """Weights must sum to 1.00; invalid weights must raise ValueError."""
+ main
         invalid_weights = {
             "people": 0.30,
             "vulnerable": 0.30,
@@ -234,6 +336,7 @@ class TestPriorityEngine(unittest.TestCase):
         with self.assertRaises(ValueError):
             validate_weights(invalid_weights)
 
+ priority-testing
     def test_missing_weight_key(self):
         """Missing any required weight key must raise ValueError."""
         incomplete_weights = {
@@ -376,6 +479,8 @@ class TestPriorityEngine(unittest.TestCase):
         self.assertLess(elapsed, 2.0, f"Ranking 6,377 camps took {elapsed:.3f}s, expected < 2.0s")
         print(f"\n[PERFORMANCE BENCHMARK] Ranked all 6,377 camps in {elapsed:.4f} seconds.")
 
+=======
+ main
 
 if __name__ == "__main__":
     unittest.main()
