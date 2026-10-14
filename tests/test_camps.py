@@ -35,7 +35,6 @@ import asyncio
 from routers.camps_router import (
     _validate_and_save_camp_update,
     get_camp_allocations,
-    get_allocations_query,
 )
 
 
@@ -318,24 +317,6 @@ class TestCampAllocations(unittest.TestCase):
                 get_camp_allocations(camp_id=1, request=dummy_req, user=donor_user)
             )
         self.assertEqual(ctx.exception.status_code, 403)
-
-    @patch("routers.camps_router.get_conn")
-    def test_query_endpoint_forwards_camp_id(self, mock_get_conn):
-        """GET /allocation?camp_id= correctly queries allocations matching Section 10 contract."""
-        mock_conn = MagicMock()
-        mock_cur = MagicMock()
-        mock_get_conn.return_value = mock_conn
-        mock_conn.cursor.return_value.__enter__.return_value = mock_cur
-        mock_cur.fetchone.return_value = self._get_sample_camp(1)
-        mock_cur.fetchall.return_value = self._get_sample_allocations()
-
-        admin_user = {"role": "admin"}
-        dummy_req = MagicMock()
-
-        res = asyncio.run(
-            get_allocations_query(request=dummy_req, camp_id=1, format="json", user=admin_user)
-        )
-        self.assertEqual(res.status_code, 200)
 
 
 if __name__ == "__main__":

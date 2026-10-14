@@ -877,32 +877,3 @@ async def get_camp_allocations(
         },
     )
 
-
-@router.get("/allocation")
-async def get_allocations_query(
-    request: Request,
-    camp_id: Optional[int] = Query(None),
-    format: Optional[str] = Query(None),
-    user: dict = Depends(get_current_user),
-):
-    """
-    Query allocations matching Guide Section 10 contract: GET /allocation?camp_id=
-    Delegates to get_camp_allocations for the specified camp.
-    """
-    target_camp_id = camp_id
-    if target_camp_id is None and user.get("role") == "camp_officer" and user.get("camp_id"):
-        target_camp_id = int(user["camp_id"])
-
-    if target_camp_id is None:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="camp_id parameter is required.",
-        )
-
-    return await get_camp_allocations(
-        camp_id=target_camp_id,
-        request=request,
-        format=format,
-        user=user,
-    )
-
