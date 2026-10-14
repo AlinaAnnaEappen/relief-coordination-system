@@ -1,3 +1,223 @@
+ priority-testing
+{% extends "base.html" %}
+
+{% block content %}
+<div class="priority-dashboard" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 1.5rem 0;">
+    {# ── Header & Action Controls ─────────────────────────────────────── #}
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 1rem;">
+        <div>
+            <h1 style="margin: 0; font-size: 1.75rem; color: #0f172a; display: flex; align-items: center; gap: 0.5rem;">
+                <span>🚨</span> Camp Priority Ranking Dashboard
+            </h1>
+            <p style="margin: 0.35rem 0 0 0; color: #64748b; font-size: 0.95rem;">
+                Simple Additive Weighting (SAW) Multicriteria Triage & Resource Allocation Order
+            </p>
+        </div>
+
+        {# Recalculate Button Form #}
+        <form action="/priority/run" method="post" style="margin: 0;">
+            <button type="submit" style="background: #2563eb; color: #ffffff; border: none; padding: 0.65rem 1.25rem; font-size: 0.95rem; font-weight: 600; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                <span>🔄</span> Recalculate Priority
+            </button>
+        </form>
+    </div>
+
+    {# ── Run Metadata & Weights Summary ──────────────────────────────── #}
+    {% if run %}
+    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem; display: flex; flex-wrap: wrap; gap: 1.5rem; font-size: 0.9rem;">
+        <div>
+            <strong style="color: #334155;">Latest Run ID:</strong> #{{ run.run_id }}
+        </div>
+        <div>
+            <strong style="color: #334155;">Calculated At:</strong> {{ run.run_at }}
+        </div>
+        <div>
+            <strong style="color: #334155;">Calculated By:</strong> {{ run.run_by }}
+        </div>
+        <div style="flex-basis: 100%; border-top: 1px dashed #cbd5e1; padding-top: 0.5rem; margin-top: 0.25rem; color: #475569;">
+            <strong>Weights Contract:</strong>
+            People: {{ (run.weights.people * 100)|round }}% &nbsp;|&nbsp;
+            Vulnerable: {{ (run.weights.vulnerable * 100)|round }}% &nbsp;|&nbsp;
+            Damage: {{ (run.weights.damage * 100)|round }}% &nbsp;|&nbsp;
+            Access: {{ (run.weights.access * 100)|round }}% &nbsp;|&nbsp;
+            Time: {{ (run.weights.time * 100)|round }}% &nbsp;|&nbsp;
+            Escalation: {{ (run.weights.escalation * 100)|round }}%
+        </div>
+    </div>
+    {% else %}
+    <div style="background: #fef3c7; border: 1px solid #fde68a; color: #92400e; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
+        ⚠️ No priority ranking has been executed yet. Click <strong>Recalculate Priority</strong> above to generate the first run.
+    </div>
+    {% endif %}
+
+    {# ── Filter & Pagination Controls ────────────────────────────────── #}
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
+        {# District Dropdown Filter #}
+        <form method="get" action="/priority/latest" style="display: flex; align-items: center; gap: 0.5rem;">
+            <label for="district-select" style="font-weight: 600; font-size: 0.9rem; color: #334155;">Filter District:</label>
+            <select id="district-select" name="district" onchange="this.form.submit()" style="padding: 0.45rem 0.75rem; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.9rem; background: #ffffff;">
+                <option value="">All Districts ({{ total }} camps)</option>
+                {% for d in districts %}
+                <option value="{{ d }}" {% if district == d %}selected{% endif %}>{{ d }}</option>
+                {% endfor %}
+            </select>
+            {% if district %}
+            <a href="/priority/latest" style="font-size: 0.85rem; color: #dc2626; text-decoration: none;">[Clear Filter]</a>
+            {% endif %}
+        </form>
+
+        {# Showing X-Y of N #}
+        <div style="font-size: 0.9rem; color: #475569;">
+            {% if total > 0 %}
+            Showing <strong>{{ page_start }}-{{ page_end }}</strong> of <strong>{{ total }}</strong> camps
+            {% else %}
+            No camps found
+            {% endif %}
+        </div>
+    </div>
+
+    {# ── Ranking Table ────────────────────────────────────────────────── #}
+    {% if ranking %}
+    <div style="overflow-x: auto; border: 1px solid #cbd5e1; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); background: #ffffff;">
+        <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
+            <thead>
+                <tr style="background: #f1f5f9; color: #334155; border-bottom: 2px solid #cbd5e1;">
+                    <th style="padding: 0.75rem 1rem; width: 70px;">Rank</th>
+                    <th style="padding: 0.75rem 1rem;">Relief Camp</th>
+                    <th style="padding: 0.75rem 1rem; width: 130px;">District</th>
+                    <th style="padding: 0.75rem 1rem; width: 90px; text-align: center;">Score</th>
+                    <th style="padding: 0.75rem 1rem; width: 80px; text-align: center;">Urgent</th>
+                    <th style="padding: 0.75rem 1rem; min-width: 280px;">Criteria Breakdown (6 Factors)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in ranking %}
+                <tr style="border-bottom: 1px solid #e2e8f0; {% if c.has_escalation %}background: #fff1f2;{% endif %}">
+                    {# Rank Badge #}
+                    <td style="padding: 0.75rem 1rem; font-weight: 700;">
+                        {% if c.rank == 1 %}
+                        <span style="background: #dc2626; color: #fff; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem;">#1</span>
+                        {% elif c.rank == 2 %}
+                        <span style="background: #ea580c; color: #fff; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem;">#2</span>
+                        {% elif c.rank == 3 %}
+                        <span style="background: #d97706; color: #fff; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem;">#3</span>
+                        {% else %}
+                        <span style="color: #64748b;">#{{ c.rank }}</span>
+                        {% endif %}
+                    </td>
+
+                    {# Camp Details #}
+                    <td style="padding: 0.75rem 1rem;">
+                        <a href="/camps/{{ c.camp_id }}" style="font-weight: 600; color: #1e40af; text-decoration: none;">
+                            {{ c.camp_name }}
+                        </a>
+                        <div style="font-size: 0.8rem; color: #64748b; margin-top: 2px;">
+                            Occupancy: {{ c.occupancy }} / Cap: {{ c.capacity }} &nbsp;·&nbsp;
+                            Damage: {{ c.damage_level }}/5 &nbsp;·&nbsp;
+                            Access: {{ c.access_difficulty }}/5
+                        </div>
+                    </td>
+
+                    {# District #}
+                    <td style="padding: 0.75rem 1rem; color: #475569;">
+                        {{ c.district }}
+                    </td>
+
+                    {# Score #}
+                    <td style="padding: 0.75rem 1rem; text-align: center;">
+                        <span style="font-weight: 700; font-size: 1.05rem; {% if c.score >= 70 %}color: #dc2626;{% elif c.score >= 50 %}color: #ea580c;{% else %}color: #16a34a;{% endif %}">
+                            {{ "%.2f"|format(c.score) }}
+                        </span>
+                    </td>
+
+                    {# Escalation Icon #}
+                    <td style="padding: 0.75rem 1rem; text-align: center;">
+                        {% if c.has_escalation %}
+                        <span title="Open Request Escalated as Critical Need" style="cursor: help; font-size: 1.1rem;">🚨</span>
+                        {% else %}
+                        <span style="color: #cbd5e1;">—</span>
+                        {% endif %}
+                    </td>
+
+                    {# 6 Criteria Breakdown Progress Bars #}
+                    <td style="padding: 0.75rem 1rem;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px; font-size: 0.75rem;">
+                            {# People Bar #}
+                            <div>
+                                <span style="color: #475569;">Pop: {{ (c.breakdown.people * 100)|round }}%</span>
+                                <div style="background: #e2e8f0; height: 5px; border-radius: 3px; overflow: hidden;">
+                                    <div style="background: #3b82f6; width: {{ (c.breakdown.people * 100)|round }}%; height: 100%;"></div>
+                                </div>
+                            </div>
+
+                            {# Vulnerable Bar #}
+                            <div>
+                                <span style="color: #475569;">Vuln: {{ (c.breakdown.vulnerable * 100)|round }}%</span>
+                                <div style="background: #e2e8f0; height: 5px; border-radius: 3px; overflow: hidden;">
+                                    <div style="background: #8b5cf6; width: {{ (c.breakdown.vulnerable * 100)|round }}%; height: 100%;"></div>
+                                </div>
+                            </div>
+
+                            {# Damage Bar #}
+                            <div>
+                                <span style="color: #475569;">Dmg: {{ (c.breakdown.damage * 100)|round }}%</span>
+                                <div style="background: #e2e8f0; height: 5px; border-radius: 3px; overflow: hidden;">
+                                    <div style="background: #ef4444; width: {{ (c.breakdown.damage * 100)|round }}%; height: 100%;"></div>
+                                </div>
+                            </div>
+
+                            {# Access Bar #}
+                            <div>
+                                <span style="color: #475569;">Acc: {{ (c.breakdown.access * 100)|round }}%</span>
+                                <div style="background: #e2e8f0; height: 5px; border-radius: 3px; overflow: hidden;">
+                                    <div style="background: #f97316; width: {{ (c.breakdown.access * 100)|round }}%; height: 100%;"></div>
+                                </div>
+                            </div>
+
+                            {# Time Bar #}
+                            <div>
+                                <span style="color: #475569;">Time: {{ (c.breakdown.time * 100)|round }}%</span>
+                                <div style="background: #e2e8f0; height: 5px; border-radius: 3px; overflow: hidden;">
+                                    <div style="background: #06b6d4; width: {{ (c.breakdown.time * 100)|round }}%; height: 100%;"></div>
+                                </div>
+                            </div>
+
+                            {# Escalation Bar #}
+                            <div>
+                                <span style="color: #475569;">Esc: {{ (c.breakdown.escalation * 100)|round }}%</span>
+                                <div style="background: #e2e8f0; height: 5px; border-radius: 3px; overflow: hidden;">
+                                    <div style="background: #ec4899; width: {{ (c.breakdown.escalation * 100)|round }}%; height: 100%;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {# ── Pagination Links (Previous / Next) ───────────────────────────── #}
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
+        {% if prev_offset is not none %}
+        <a href="/priority/latest?limit={{ limit }}&offset={{ prev_offset }}{% if district %}&district={{ district }}{% endif %}" style="padding: 0.5rem 1rem; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 4px; text-decoration: none; color: #1e293b; font-size: 0.9rem; font-weight: 600;">
+            ← Previous Page
+        </a>
+        {% else %}
+        <span></span>
+        {% endif %}
+
+        {% if next_offset is not none %}
+        <a href="/priority/latest?limit={{ limit }}&offset={{ next_offset }}{% if district %}&district={{ district }}{% endif %}" style="padding: 0.5rem 1rem; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 4px; text-decoration: none; color: #1e293b; font-size: 0.9rem; font-weight: 600;">
+            Next Page →
+        </a>
+        {% endif %}
+    </div>
+
+    {% endif %}
+</div>
+{% endblock %}
+=======
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -480,3 +700,4 @@
   </div>
 </body>
 </html>
+ main

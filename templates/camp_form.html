@@ -2,6 +2,175 @@
 
 {% block content %}
 <div class="camp-form-container">
+ priority-testing
+    {% if is_new %}
+    <h2>Register New Relief Camp</h2>
+    <p class="form-intro">Enter the camp information below. Initial vulnerable counts and damage levels will start at
+        default values.</p>
+
+    {% if errors %}
+    <div class="error-box">
+        <strong>Please correct the following:</strong>
+        <ul>
+            {% for error in errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <form action="/camps" method="post" class="camp-form">
+        <div class="form-group">
+            <label for="name">Camp Name *</label>
+            <input type="text" id="name" name="name" value="{{ camp.name or '' }}" required>
+            <span class="help-text">Official name of the relief camp or shelter center.</span>
+        </div>
+
+        <div class="form-group">
+            <label for="district">District *</label>
+            <input type="text" id="district" name="district" value="{{ camp.district or '' }}" required
+                list="district-options">
+            <datalist id="district-options">
+                <option value="Alappuzha">
+                <option value="Ernakulam">
+                <option value="Idukki">
+                <option value="Kannur">
+                <option value="Kasaragod">
+                <option value="Kollam">
+                <option value="Kottayam">
+                <option value="Kozhikode">
+                <option value="Malappuram">
+                <option value="Palakkad">
+                <option value="Pathanamthitta">
+                <option value="Thiruvananthapuram">
+                <option value="Thrissur">
+                <option value="Wayanad">
+            </datalist>
+            <span class="help-text">Administrative district in Kerala where the camp is situated.</span>
+        </div>
+
+        <div class="form-group">
+            <label for="address">Address</label>
+            <textarea id="address" name="address" rows="3">{{ camp.address or '' }}</textarea>
+            <span class="help-text">Full physical location, village, or nearest landmark.</span>
+        </div>
+
+        <div class="form-group">
+            <label for="latitude">Latitude *</label>
+            <input type="number" step="any" id="latitude" name="latitude" value="{{ camp.latitude or '' }}" required>
+            <span class="help-text">GPS latitude in decimal degrees (-90.0 to 90.0; e.g. 9.981600).</span>
+        </div>
+
+        <div class="form-group">
+            <label for="longitude">Longitude *</label>
+            <input type="number" step="any" id="longitude" name="longitude" value="{{ camp.longitude or '' }}" required>
+            <span class="help-text">GPS longitude in decimal degrees (-180.0 to 180.0; e.g. 76.299900).</span>
+        </div>
+
+        <div class="form-group">
+            <label for="capacity">Capacity</label>
+            <input type="number" min="0" step="1" id="capacity" name="capacity"
+                value="{{ camp.capacity if camp.capacity is not none else '' }}">
+            <span class="help-text">Maximum persons the camp can safely house (leave empty or ≥ 0).</span>
+        </div>
+
+        <div class="form-group">
+            <label for="status">Status *</label>
+            <select id="status" name="status">
+                <option value="active" {% if camp.status=='active' or not camp.status %}selected{% endif %}>Active
+                </option>
+                <option value="closed" {% if camp.status=='closed' %}selected{% endif %}>Closed</option>
+            </select>
+            <span class="help-text">Active camps can submit requests and receive supply allocations.</span>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Save Camp</button>
+            <a href="/camps" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+
+    {% else %}
+    {# View existing camp details #}
+    <div class="page-header">
+        <h2>{{ camp.name }}</h2>
+        <a href="/camps" class="btn btn-secondary">Back to Camps</a>
+    </div>
+
+    <div class="camp-details">
+        <h3>Camp Information</h3>
+        <table class="table camp-detail-table">
+            <tbody>
+                <tr>
+                    <th>Camp ID</th>
+                    <td>{{ camp.camp_id }}</td>
+                </tr>
+                <tr>
+                    <th>District</th>
+                    <td>{{ camp.district }}</td>
+                </tr>
+                <tr>
+                    <th>Address</th>
+                    <td>{{ camp.address or '—' }}</td>
+                </tr>
+                <tr>
+                    <th>Coordinates</th>
+                    <td>{{ camp.latitude }}, {{ camp.longitude }}</td>
+                </tr>
+                <tr>
+                    <th>Status</th>
+                    <td>
+                        {% if camp.status == 'active' %}
+                        <span class="badge badge-active">Active</span>
+                        {% else %}
+                        <span class="badge badge-closed">Closed</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th>Capacity</th>
+                    <td>{{ camp.capacity if camp.capacity is not none else '—' }}</td>
+                </tr>
+                <tr>
+                    <th>Current Occupancy</th>
+                    <td>{{ camp.occupancy }}</td>
+                </tr>
+                <tr>
+                    <th>Vulnerable Counts</th>
+                    <td>
+                        Children: {{ camp.children_count }} |
+                        Elderly: {{ camp.elderly_count }} |
+                        Pregnant: {{ camp.pregnant_count }} |
+                        Disabled: {{ camp.disabled_count }}
+                    </td>
+                </tr>
+                <tr>
+                    <th>Damage Level</th>
+                    <td>{{ camp.damage_level }} / 5</td>
+                </tr>
+                <tr>
+                    <th>Access Difficulty</th>
+                    <td>{{ camp.access_difficulty }} / 5</td>
+                </tr>
+                <tr>
+                    <th>Last Supply At</th>
+                    <td>{{ camp.last_supply_at or 'Never' }}</td>
+                </tr>
+                <tr>
+                    <th>Created At</th>
+                    <td>{{ camp.created_at }}</td>
+                </tr>
+                <tr>
+                    <th>Updated At</th>
+                    <td>{{ camp.updated_at }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+=======
   {% if is_new %}
     <h2>Register New Relief Camp</h2>
     <p class="form-intro">Enter the camp information below. Initial vulnerable counts and damage levels will start at default values.</p>
@@ -130,3 +299,4 @@
   {% endif %}
 </div>
 {% endblock %}
+ main
