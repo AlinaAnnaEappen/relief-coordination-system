@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+
+{% block title %}Distribution Hubs — Kerala Relief Coordination{% endblock %}
+
+{% block content %}
+<div class="hubs-page">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem;">
+        <div>
+            <h1 style="margin: 0; font-size: 1.85rem; color: #0f172a; display: flex; align-items: center; gap: 0.6rem;">
+                <span>🏢</span> Relief Distribution Hubs
+            </h1>
+            <p style="margin: 0.35rem 0 0 0; color: #64748b; font-size: 0.95rem;">
+                Government centralized warehouses for stock management, donation intake, and camp routing
+            </p>
+        </div>
+        {% if is_admin %}
+        <a href="#new-hub-card" class="btn btn-primary" style="box-shadow: 0 2px 4px rgba(37,99,235,0.2);">
+            <span>➕</span> Register New Hub
+        </a>
+        {% endif %}
+    </div>
+
+    {# ── Hubs Grid ────────────────────────────────────────────────────────── #}
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 1.5rem; margin-bottom: 2.5rem;">
+        {% for hub in hubs %}
+        <div class="card" style="display: flex; flex-direction: column; justify-content: space-between; position: relative; border-top: 4px solid {% if hub.active %}#2563eb{% else %}#94a3b8{% endif %};">
+            {% if user_hub_id == hub.hub_id %}
+            <div style="position: absolute; top: 1rem; right: 1rem;">
+                <span class="badge badge-info" style="font-size: 0.75rem;">⭐ Assigned Hub</span>
+            </div>
+            {% endif %}
+
+            <div>
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
+                    <h3 style="margin: 0; font-size: 1.2rem; color: #0f172a;">{{ hub.name }}</h3>
+                </div>
+                <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+                    <span class="badge badge-secondary">📍 {{ hub.district }}</span>
+                    {% if hub.active %}
+                    <span class="badge badge-success">Active</span>
+                    {% else %}
+                    <span class="badge badge-danger">Inactive</span>
+                    {% endif %}
+                </div>
+
+                <div style="font-size: 0.88rem; color: #475569; margin-bottom: 1rem; line-height: 1.4;">
+                    <p style="margin: 0 0 0.4rem 0;"><strong>Address:</strong> {{ hub.address or 'Standard Central Depot' }}</p>
+                    <p style="margin: 0;"><strong>Coordinates:</strong> {{ hub.latitude | round(4) }}° N, {{ hub.longitude | round(4) }}° E</p>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; background: #f8fafc; padding: 0.75rem 1rem; border-radius: 6px; margin-bottom: 1.25rem; font-size: 0.85rem; border: 1px solid #e2e8f0;">
+                    <div>
+                        <div style="color: #64748b;">Unique Items</div>
+                        <div style="font-weight: 700; font-size: 1.1rem; color: #1e293b;">{{ hub.distinct_items_stocked }}</div>
+                    </div>
+                    <div>
+                        <div style="color: #64748b;">Total Units</div>
+                        <div style="font-weight: 700; font-size: 1.1rem; color: #0284c7;">{{ hub.total_units_available }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 0.5rem; border-top: 1px solid #f1f5f9; padding-top: 1rem;">
+                <a href="/stock?hub_id={{ hub.hub_id }}" class="btn btn-primary" style="flex: 1; justify-content: center;">
+                    📦 View Stock & Dashboard
+                </a>
+            </div>
+        </div>
+        {% else %}
+        <div class="card" style="grid-column: 1 / -1; text-align: center; padding: 3rem 1rem;">
+            <p style="color: #64748b; font-size: 1.1rem;">No distribution hubs currently registered.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    {# ── Admin Hub Creation Form ────────────────────────────────────────── #}
+    {% if is_admin %}
+    <div id="new-hub-card" class="card" style="max-width: 650px; margin: 0 auto; border-top: 4px solid #7c3aed;">
+        <h2 style="margin-top: 0; font-size: 1.35rem; color: #0f172a; display: flex; align-items: center; gap: 0.5rem;">
+            <span>➕</span> Register New Distribution Hub
+        </h2>
+        <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 1.5rem;">
+            New hubs immediately become eligible for donor routing, inventory stocking, and distance-based camp allocation.
+        </p>
+
+        {% if errors %}
+        <div style="background: #fee2e2; border: 1px solid #f87171; color: #991b1b; padding: 0.75rem 1rem; border-radius: 6px; margin-bottom: 1.25rem; font-size: 0.9rem;">
+            <strong>Please correct the following:</strong>
+            <ul style="margin: 0.4rem 0 0 1.25rem; padding: 0;">
+                {% for err in errors %}
+                <li>{{ err }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        <form action="/hubs" method="post" style="display: flex; flex-direction: column; gap: 1rem;">
+            <div>
+                <label style="display: block; font-weight: 600; font-size: 0.88rem; margin-bottom: 0.35rem;" for="name">Hub Name *</label>
+                <input type="text" id="name" name="name" required placeholder="e.g., Central Supply Hub Kozhikode" style="width: 100%; padding: 0.6rem; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box;" value="{{ form_data.name if form_data else '' }}">
+            </div>
+
+            <div>
+                <label style="display: block; font-weight: 600; font-size: 0.88rem; margin-bottom: 0.35rem;" for="district">District *</label>
+                <input type="text" id="district" name="district" required list="kerala-districts" placeholder="Select or type district" style="width: 100%; padding: 0.6rem; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box;" value="{{ form_data.district if form_data else '' }}">
+                <datalist id="kerala-districts">
+                    <option value="Alappuzha">
+                    <option value="Ernakulam">
+                    <option value="Idukki">
+                    <option value="Kannur">
+                    <option value="Kasaragod">
+                    <option value="Kollam">
+                    <option value="Kottayam">
+                    <option value="Kozhikode">
+                    <option value="Malappuram">
+                    <option value="Palakkad">
+                    <option value="Pathanamthitta">
+                    <option value="Thiruvananthapuram">
+                    <option value="Thrissur">
+                    <option value="Wayanad">
+                </datalist>
+            </div>
+
+            <div>
+                <label style="display: block; font-weight: 600; font-size: 0.88rem; margin-bottom: 0.35rem;" for="address">Address & Landmark</label>
+                <textarea id="address" name="address" rows="2" placeholder="Warehouse address or location details" style="width: 100%; padding: 0.6rem; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box;">{{ form_data.address if form_data else '' }}</textarea>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div>
+                    <label style="display: block; font-weight: 600; font-size: 0.88rem; margin-bottom: 0.35rem;" for="latitude">Latitude *</label>
+                    <input type="number" step="any" id="latitude" name="latitude" required placeholder="e.g. 9.490000" style="width: 100%; padding: 0.6rem; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box;" value="{{ form_data.latitude if form_data else '' }}">
+                </div>
+                <div>
+                    <label style="display: block; font-weight: 600; font-size: 0.88rem; margin-bottom: 0.35rem;" for="longitude">Longitude *</label>
+                    <input type="number" step="any" id="longitude" name="longitude" required placeholder="e.g. 76.330000" style="width: 100%; padding: 0.6rem; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box;" value="{{ form_data.longitude if form_data else '' }}">
+                </div>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem;">
+                <input type="checkbox" id="active" name="active" value="true" checked style="width: 1.1rem; height: 1.1rem;">
+                <label for="active" style="font-size: 0.9rem; color: #334155; font-weight: 500;">Active Hub (eligible to dispatch supplies and receive donations)</label>
+            </div>
+
+            <div style="margin-top: 1rem;">
+                <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 0.75rem;">
+                    Confirm & Save Hub
+                </button>
+            </div>
+        </form>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

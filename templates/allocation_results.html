@@ -1,0 +1,241 @@
+{% extends "base.html" %}
+
+{% block title %}Allocation Results — Kerala Relief Coordination{% endblock %}
+
+{% block content %}
+<div class="allocation-dashboard">
+    {# ── Header & Action Controls ─────────────────────────────────────── #}
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 1rem;">
+        <div>
+            <h1 style="margin: 0; font-size: 1.75rem; color: #0f172a; display: flex; align-items: center; gap: 0.5rem;">
+                <span>📊</span> Resource Allocation Engine Results
+            </h1>
+            <p style="margin: 0.35rem 0 0 0; color: #64748b; font-size: 0.95rem;">
+                Deterministic supply routing: matches open camp requests from nearest available distribution hubs in strict SAW priority order.
+            </p>
+        </div>
+
+        {# Trigger Run Button #}
+        {% if user.role == 'admin' %}
+        <form action="/allocation/run" method="post" style="margin: 0;">
+            <button type="submit" class="btn btn-primary" style="box-shadow: 0 2px 4px rgba(37,99,235,0.25);">
+                <span>⚡</span> Run Allocation Engine
+            </button>
+        </form>
+        {% endif %}
+    </div>
+
+    {% if run %}
+    {# ── Run Metadata Banner ─────────────────────────────────────────── #}
+    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1.5rem; display: flex; flex-wrap: wrap; gap: 2rem; font-size: 0.9rem; align-items: center;">
+        <div>
+            <strong style="color: #334155;">Allocation Run ID:</strong> #{{ run.run_id }}
+        </div>
+        <div>
+            <strong style="color: #334155;">Associated Priority Run:</strong> #{{ run.priority_run_id }}
+        </div>
+        <div>
+            <strong style="color: #334155;">Executed At:</strong> {{ run.run_at.strftime('%Y-%m-%d %H:%M:%S UTC') if run.run_at else '—' }}
+        </div>
+        <div>
+            <strong style="color: #334155;">Operator:</strong> {{ run.run_by_name or 'Admin' }}
+        </div>
+    </div>
+
+    {# ── Summary Cards ────────────────────────────────────────────────── #}
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-bottom: 2rem;">
+        <div class="card" style="margin: 0; padding: 1.25rem; border-left: 4px solid #2563eb;">
+            <div style="font-size: 0.85rem; font-weight: 600; color: #64748b; text-transform: uppercase;">Allocations Planned</div>
+            <div style="font-size: 1.85rem; font-weight: 700; color: #0f172a; margin-top: 0.35rem;">
+                {{ allocations | length }}
+            </div>
+            <div style="font-size: 0.8rem; color: #94a3b8; margin-top: 0.2rem;">Discrete supply shipments</div>
+        </div>
+
+        <div class="card" style="margin: 0; padding: 1.25rem; border-left: 4px solid #059669;">
+            <div style="font-size: 0.85rem; font-weight: 600; color: #64748b; text-transform: uppercase;">Camps Receiving Aid</div>
+            <div style="font-size: 1.85rem; font-weight: 700; color: #059669; margin-top: 0.35rem;">
+                {{ camps_summary | length }}
+            </div>
+            <div style="font-size: 0.8rem; color: #94a3b8; margin-top: 0.2rem;">Relief centers served</div>
+        </div>
+
+        <div class="card" style="margin: 0; padding: 1.25rem; border-left: 4px solid {% if shortages %}#dc2626{% else %}#059669{% endif %};">
+            <div style="font-size: 0.85rem; font-weight: 600; color: #64748b; text-transform: uppercase;">Remaining Shortages</div>
+            <div style="font-size: 1.85rem; font-weight: 700; color: {% if shortages %}#dc2626{% else %}#059669{% endif %}; margin-top: 0.35rem;">
+                {{ shortages | length }}
+            </div>
+            <div style="font-size: 0.8rem; color: #94a3b8; margin-top: 0.2rem;">Unmet item requests</div>
+        </div>
+    </div>
+
+    {# ── Section 1: Camp-Wise Supply Distribution Summary ─────────────── #}
+    <div class="card" style="margin-bottom: 2rem; border-top: 4px solid #059669;">
+        <h2 style="margin: 0 0 0.5rem 0; font-size: 1.3rem; color: #0f172a; display: flex; align-items: center; gap: 0.5rem;">
+            <span>⛺</span> Camp-by-Camp Relief Distribution Summary
+        </h2>
+        <p style="margin: 0 0 1.25rem 0; color: #64748b; font-size: 0.88rem;">
+            Breakdown of relief goods routed to each camp from nearest hubs based on priority ranking.
+        </p>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1.25rem;">
+            {% for c in camps_summary %}
+            <div style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 1.25rem; background: #ffffff;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+                    <div>
+                        <h3 style="margin: 0; font-size: 1.1rem; color: #0f172a;">{{ c.camp_name }}</h3>
+                        <span class="badge badge-secondary" style="font-size: 0.75rem; margin-top: 0.25rem;">Camp #{{ c.camp_id }} &nbsp;·&nbsp; {{ c.camp_district }}</span>
+                    </div>
+                    <span class="badge badge-success">{{ c.total_units }} units</span>
+                </div>
+
+                <div style="border-top: 1px solid #f1f5f9; padding-top: 0.75rem;">
+                    <div style="font-size: 0.82rem; font-weight: 600; color: #64748b; margin-bottom: 0.5rem; text-transform: uppercase;">Allocated Supplies:</div>
+                    <ul style="margin: 0; padding-left: 1.2rem; font-size: 0.88rem; line-height: 1.5; color: #334155;">
+                        {% for it in c.items_list %}
+                        <li>
+                            <strong style="color: #0284c7;">{{ it.qty }} {{ it.unit }}</strong>
+                            {{ it.item_name }} ({{ it.item_code }})
+                            <span style="font-size: 0.75rem; color: #64748b;">via {{ it.hub_name }}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            {% else %}
+            <div style="grid-column: 1 / -1; text-align: center; padding: 2rem; color: #64748b;">
+                No camp allocations generated in this run.
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    {# ── Section 2: Remaining Shortages (Unmet Demand) ────────────────── #}
+    {% if shortages %}
+    <div class="card" style="margin-bottom: 2rem; border-top: 4px solid #dc2626;">
+        <h2 style="margin: 0 0 0.5rem 0; font-size: 1.3rem; color: #991b1b; display: flex; align-items: center; gap: 0.5rem;">
+            <span>⚠️</span> Unmet Supply Shortages
+        </h2>
+        <p style="margin: 0 0 1rem 0; color: #64748b; font-size: 0.88rem;">
+            Camps that requested these items could not be fully supplied due to insufficient inventory across all distribution hubs.
+        </p>
+
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem; text-align: left;">
+                <thead>
+                    <tr style="background: #fef2f2; border-bottom: 2px solid #fecaca; color: #991b1b;">
+                        <th style="padding: 0.75rem 1rem;">Camp</th>
+                        <th style="padding: 0.75rem 1rem;">Item Name & Code</th>
+                        <th style="padding: 0.75rem 1rem;">Requested</th>
+                        <th style="padding: 0.75rem 1rem;">Allocated</th>
+                        <th style="padding: 0.75rem 1rem;">Shortage (Deficit)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in shortages %}
+                    <tr style="border-bottom: 1px solid #fee2e2;">
+                        <td style="padding: 0.75rem 1rem;">
+                            <strong>{{ s.camp_name }}</strong> ({{ s.camp_district }})
+                        </td>
+                        <td style="padding: 0.75rem 1rem;">
+                            {{ s.item_name }} (<code>{{ s.item_code }}</code>)
+                        </td>
+                        <td style="padding: 0.75rem 1rem; color: #475569;">
+                            {{ s.total_requested }} {{ s.unit }}
+                        </td>
+                        <td style="padding: 0.75rem 1rem; color: #059669; font-weight: 600;">
+                            {{ s.total_allocated }} {{ s.unit }}
+                        </td>
+                        <td style="padding: 0.75rem 1rem; color: #dc2626; font-weight: 700;">
+                            -{{ s.shortage_qty }} {{ s.unit }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    {# ── Section 3: All Detailed Allocation Records ───────────────────── #}
+    <div class="card" style="border-top: 4px solid #2563eb;">
+        <h2 style="margin: 0 0 0.5rem 0; font-size: 1.3rem; color: #0f172a; display: flex; align-items: center; gap: 0.5rem;">
+            <span>📋</span> Complete Allocation Ledger Rows
+        </h2>
+        <p style="margin: 0 0 1rem 0; color: #64748b; font-size: 0.88rem;">
+            Individual planned allocations recorded in PostgreSQL with foreign keys to request items and source hubs.
+        </p>
+
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem; text-align: left;">
+                <thead>
+                    <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0; color: #475569;">
+                        <th style="padding: 0.75rem 1rem;">ID</th>
+                        <th style="padding: 0.75rem 1rem;">Recipient Camp</th>
+                        <th style="padding: 0.75rem 1rem;">Source Hub</th>
+                        <th style="padding: 0.75rem 1rem;">Item</th>
+                        <th style="padding: 0.75rem 1rem;">Quantity</th>
+                        <th style="padding: 0.75rem 1rem;">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for a in allocations %}
+                    <tr style="border-bottom: 1px solid #f1f5f9;">
+                        <td style="padding: 0.75rem 1rem; font-weight: 700; color: #1e293b;">
+                            #{{ a.allocation_id }}
+                        </td>
+                        <td style="padding: 0.75rem 1rem;">
+                            <strong>{{ a.camp_name }}</strong>
+                        </td>
+                        <td style="padding: 0.75rem 1rem;">
+                            {{ a.hub_name }}
+                        </td>
+                        <td style="padding: 0.75rem 1rem;">
+                            {{ a.item_name }} (<code>{{ a.item_code }}</code>)
+                        </td>
+                        <td style="padding: 0.75rem 1rem; font-weight: 700; color: #0284c7;">
+                            {{ a.qty }} {{ a.unit }}
+                        </td>
+                        <td style="padding: 0.75rem 1rem;">
+                            {% if a.status == 'planned' %}
+                            <span class="badge badge-info">planned</span>
+                            {% elif a.status == 'dispatched' %}
+                            <span class="badge badge-warning">dispatched</span>
+                            {% elif a.status == 'delivered' %}
+                            <span class="badge badge-success">delivered</span>
+                            {% else %}
+                            <span class="badge badge-secondary">{{ a.status }}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 2rem; color: #64748b;">
+                            No allocation rows found.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% else %}
+    {# ── Empty State: No Allocation Run Yet ───────────────────────────── #}
+    <div class="card" style="text-align: center; padding: 4rem 2rem; border-top: 4px solid #cbd5e1;">
+        <span style="font-size: 3rem; display: block; margin-bottom: 1rem;">📦</span>
+        <h2 style="margin: 0 0 0.5rem 0; font-size: 1.5rem; color: #0f172a;">No Allocation Run Executed Yet</h2>
+        <p style="color: #64748b; max-width: 500px; margin: 0 auto 1.5rem auto; font-size: 0.95rem;">
+            Run the Allocation Engine to match active relief camp requests against stock stored in regional distribution hubs.
+        </p>
+        {% if user.role == 'admin' %}
+        <form action="/allocation/run" method="post" style="margin: 0; display: inline-block;">
+            <button type="submit" class="btn btn-primary" style="padding: 0.75rem 1.5rem; font-size: 1rem;">
+                <span>⚡</span> Run Allocation Engine Now
+            </button>
+        </form>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
