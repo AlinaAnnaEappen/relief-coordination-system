@@ -1,10 +1,10 @@
 camp_id,name,district,address,latitude,longitude,capacity,occupancy,children_count,elderly_count,pregnant_count,disabled_count,damage_level,access_difficulty,status,last_supply_at
-1,Gov HWLPS Kaithottukonam (Chengannur Relief Camp),Thiruvananthapuram,"Kunnathukal, Kunnathukal, Thiruvananthapuram, Government",8.2321,77.102,500,400,90,60,10,5,4,5,active,2026-08-13T12:00:00Z
-2,Gov UPS Kunnathukal (Kuttanad Relief Camp),Thiruvananthapuram,"Kunnathukal, Kunnathukal, Thiruvananthapuram, Government",8.2321,77.102,600,500,120,80,15,10,5,5,active,2026-08-12T00:00:00Z
-3,Gov HSS Anavoor (Thiruvalla Relief Camp),Thiruvananthapuram,"Kunnathukal, Anavoor, Thiruvananthapuram, Government",8.443648,77.136406,200,150,30,20,2,1,2,2,active,2026-08-15T00:00:00Z
-4,GLPS Pakalkkuri (Pathanamthitta Relief Camp),Thiruvananthapuram,"Pallickal, Pallickal, Thiruvananthapuram, Government",8.845417,76.95257,300,220,50,40,5,3,3,3,active,2026-08-14T12:00:00Z
-5,GHSS Pakalkkuri (Alappuzha Relief Camp),Thiruvananthapuram,"Pallickal, Pallickal, Thiruvananthapuram, Government",8.846598,76.796267,400,300,70,45,8,4,3,4,active,2026-08-14T00:00:00Z
-6,GLPS Moothala (Changanassery Relief Camp),Thiruvananthapuram,"Pallickal, Pallickal, Thiruvananthapuram, Government",8.50289,76.48334,100,80,15,12,1,0,1,1,active,2026-08-15T08:00:00Z
+1,Gov HWLPS Kaithottukonam,Thiruvananthapuram,"Kunnathukal, Kunnathukal, Thiruvananthapuram, Government",8.2321,77.102,500,400,90,60,10,5,4,5,active,2026-08-13T12:00:00Z
+2,Gov UPS Kunnathukal,Thiruvananthapuram,"Kunnathukal, Kunnathukal, Thiruvananthapuram, Government",8.2321,77.102,600,500,120,80,15,10,5,5,active,2026-08-12T00:00:00Z
+3,Gov HSS Anavoor,Thiruvananthapuram,"Kunnathukal, Anavoor, Thiruvananthapuram, Government",8.443648,77.136406,200,150,30,20,2,1,2,2,active,2026-08-15T00:00:00Z
+4,GLPS Pakalkkuri,Thiruvananthapuram,"Pallickal, Pallickal, Thiruvananthapuram, Government",8.845417,76.95257,300,220,50,40,5,3,3,3,active,2026-08-14T12:00:00Z
+5,GHSS Pakalkkuri,Thiruvananthapuram,"Pallickal, Pallickal, Thiruvananthapuram, Government",8.846598,76.796267,400,300,70,45,8,4,3,4,active,2026-08-14T00:00:00Z
+6,GLPS Moothala,Thiruvananthapuram,"Pallickal, Pallickal, Thiruvananthapuram, Government",8.50289,76.48334,100,80,15,12,1,0,1,1,active,2026-08-15T08:00:00Z
 7,GHSS Pallickal,Thiruvananthapuram,"Pallickal, Pallickal, Thiruvananthapuram, Government",8.824097,76.809878,100,65,14,9,1,1,4,1,active,2026-08-14T17:00:00Z
 8,St Mathew's LPS Kuchuppuram,Thiruvananthapuram,"Kattakada, Kulathummel, Thiruvananthapuram, Private",8.491563,77.116556,65,0,0,0,0,0,1,1,active,
 9,LPS Puthukulangara,Thiruvananthapuram,"Uzhamalakkal, Uzhamalakkal, Thiruvananthapuram, Government",8.5918,77.0453,30,0,0,0,0,0,1,1,active,

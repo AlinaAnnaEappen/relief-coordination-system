@@ -251,7 +251,7 @@ def seed_users_fallback(conn) -> int:
 
     test_users = [
         ("admin1", "District Admin Control Room", "admin", None, None, None),
-        ("officer1", "Chengannur Camp Officer", "camp_officer", 1, None, None),
+        ("officer1", "Kaithottukonam Camp Officer", "camp_officer", 1, None, None),
         ("hub1", "Alappuzha Hub Coordinator", "hub_coordinator", None, 1, None),
         ("donor1", "Test Relief Donor", "donor", None, None, "Alappuzha"),
     ]
