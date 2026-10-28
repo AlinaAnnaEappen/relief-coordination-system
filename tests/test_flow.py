@@ -46,10 +46,10 @@ class TestEndToEndReliefFlow(unittest.TestCase):
         self.assertEqual(len(data["hubs"]), 3, "Must have exactly 3 test distribution hubs")
         self.assertEqual(len(data["items"]), 196, "Item catalog must have all 196 items")
 
-        # Verify key geographic test camps from Guide Section 7.4
+        # Verify key geographic test camps from Kerala master dataset
         camp_names = [c["name"] for c in data["camps"]]
-        self.assertTrue(any("Chengannur" in n for n in camp_names))
-        self.assertTrue(any("Kuttanad" in n for n in camp_names))
+        self.assertTrue(any("CHENGANNUR" in n.upper() for n in camp_names))
+        self.assertTrue(any("Kaithottukonam" in n for n in camp_names))
 
     def test_steps_2_to_9_full_operational_lifecycle(self):
         """
