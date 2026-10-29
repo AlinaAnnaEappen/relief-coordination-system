@@ -1,9 +1,9 @@
 """
-allocation_engine.py (Owner: Member D)
+allocation_engine.py 
 =======================================
-Resource Allocation Engine for DisasterReliefMVP.
 
-Contract Reference: DisasterRelief Team Guide - Section 9 & Section 11 (Task D2, D4)
+
+
 - Deterministic allocation from nearest available hub in strict priority order.
 - ACID transaction guarantee: atomic stock deductions, stock movement ledger entries,
   request item allocations (oldest request first), and request status updates.
